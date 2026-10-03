@@ -2,6 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo';
 import { ArrowLeft, ShieldAlert, BookOpen } from 'lucide-react';
+import { siteConfig } from '../config/site';
+import { Corner } from '../art/Corner';
+import { MadhubaniArtCredit } from '../art/ArtCreditNote';
 
 const SECTIONS = [
   { id: 'acceptance', title: '1. Acceptance of Terms' },
@@ -20,17 +23,17 @@ const SECTIONS = [
   { id: 'termination', title: '14. Account Deletion & Termination' },
   { id: 'modifications', title: '15. Modifications to Terms' },
   { id: 'governing-law', title: '16. Governing Law & Jurisdiction' },
-  { id: 'contact', title: '17. Contact & Student Developer Info' },
+  { id: 'contact', title: '17. Contact & Developer Information' },
 ];
 
 export const TermsPage: React.FC = () => {
   return (
     <div className="min-h-screen p-4 sm:p-8 max-w-6xl mx-auto z-10 relative">
       {/* Top Bar */}
-      <div className="flex items-center justify-between pb-6 mb-8 border-b border-surface-border">
+      <div className="flex items-center justify-between pb-6 mb-8 border-b border-paper-border">
         <Link
           to="/app"
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-google-blue-royal hover:underline"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-heading font-bold text-peacock-deep hover:text-vermilion transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Workspace</span>
@@ -40,10 +43,13 @@ export const TermsPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Sticky Table of Contents (4 cols) */}
-        <aside className="lg:col-span-4 lg:sticky lg:top-8 bg-white/95 backdrop-blur-md p-5 rounded-3xl border border-surface-border shadow-card hidden lg:block">
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-surface-border">
-            <BookOpen className="w-4 h-4 text-google-blue-royal" />
-            <h3 className="text-xs font-bold text-surface-text uppercase tracking-wider">
+        <aside
+          className="lg:col-span-4 lg:sticky lg:top-8 bg-paper-2/95 p-5 rounded-3xl border border-paper-border shadow-card hidden lg:block"
+          style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+        >
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-paper-border">
+            <BookOpen className="w-4 h-4 text-peacock-deep" />
+            <h3 className="text-xs font-heading font-bold text-peacock-deep uppercase tracking-wider">
               Table of Contents
             </h3>
           </div>
@@ -52,7 +58,7 @@ export const TermsPage: React.FC = () => {
               <a
                 key={sec.id}
                 href={`#${sec.id}`}
-                className="block py-1 px-2 rounded-lg text-surface-muted hover:text-google-blue-royal hover:bg-surface-soft transition-colors truncate"
+                className="block py-1.5 px-2 rounded-lg text-ink/75 hover:text-peacock-deep hover:bg-paper font-medium transition-colors truncate"
               >
                 {sec.title}
               </a>
@@ -61,186 +67,176 @@ export const TermsPage: React.FC = () => {
         </aside>
 
         {/* Legal Text Body (8 cols) */}
-        <main className="lg:col-span-8 bg-white/95 backdrop-blur-xl p-6 sm:p-10 rounded-3xl border border-surface-border shadow-lift space-y-8 text-sm text-surface-text leading-relaxed">
-          {/* Student Disclaimer Banner */}
-          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-3">
-            <ShieldAlert className="w-5 h-5 flex-shrink-0 text-amber-600 mt-0.5" />
+        <main
+          className="lg:col-span-8 bg-paper-2/95 p-6 sm:p-10 rounded-3xl border border-paper-border shadow-card space-y-8 text-sm text-ink leading-relaxed relative overflow-hidden"
+          style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+        >
+          <Corner position="top-right" size={32} strokeColor="#13504D" fillColor="#F79454" />
+
+          {/* Academic Disclaimer Banner */}
+          <div className="p-4 rounded-2xl bg-saffron-50 border border-saffron-300 text-ink text-xs flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 flex-shrink-0 text-vermilion mt-0.5" />
             <div>
-              <p className="font-bold">Academic Project Disclaimer</p>
-              <p className="mt-1 leading-normal">
-                This document is a comprehensive terms and privacy template created specifically for a student recruitment submission (GDG on Campus SRM IST - Technical Domain). It demonstrates compliance awareness and architecture transparency, but does not constitute formal legal counsel.
+              <p className="font-heading font-bold text-peacock-deep">Academic Project Submission Notice</p>
+              <p className="mt-1 leading-normal text-ink/80">
+                This document discloses the architecture and client-side processing policies of QRaft, engineered as an individual technical recruitment submission for GDG on Campus, SRM IST. All processing occurs locally on the user's device.
               </p>
             </div>
           </div>
 
           <div>
-            <h1 className="text-3xl font-extrabold text-surface-text tracking-tight">
+            <h1 className="text-3xl font-heading font-extrabold text-peacock-deep tracking-tight">
               Terms & Conditions & Privacy Policy
             </h1>
-            <p className="text-xs text-surface-muted mt-1">
-              Last Updated: October 3, 2026 &bull; Effective Immediately &bull; Version 1.0.0
+            <p className="text-xs text-ink/65 mt-1 font-mono">
+              Last Updated: {siteConfig.lastUpdated} &bull; Version {siteConfig.version}
             </p>
           </div>
 
           {/* Section 1 */}
           <section id="acceptance" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">1. Acceptance of Terms</h2>
-            <p className="text-surface-muted">
-              By accessing, browsing, generating QR codes with, or otherwise using <strong>QRaft</strong> (&quot;the Service&quot;, &quot;we&quot;, &quot;us&quot;), you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not accept these terms in full, you must not use or access the Service.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">1. Acceptance of Terms</h2>
+            <p className="text-ink/80">
+              By accessing, browsing, generating QR codes with, or otherwise using <strong>{siteConfig.name}</strong> (&quot;the Service&quot;), you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not accept these terms in full, you must not use or access the Service.
             </p>
           </section>
 
           {/* Section 2 */}
           <section id="eligibility" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">2. Eligibility & Age Requirements</h2>
-            <p className="text-surface-muted">
+            <h2 className="text-base font-heading font-bold text-peacock-deep">2. Eligibility & Age Requirements</h2>
+            <p className="text-ink/80">
               You must be at least thirteen (13) years of age, or the applicable legal age of digital consent in your jurisdiction, to use QRaft. If you are under the age of majority in your place of residence, you represent that your parent or legal guardian has reviewed and agreed to these terms on your behalf.
             </p>
           </section>
 
           {/* Section 3 */}
           <section id="service" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">3. Description of Service</h2>
-            <p className="text-surface-muted">
-              QRaft provides client-side 2D and 3D QR code creation, visual styling, WCAG contrast verification, jsQR scannability simulation, and local template archiving. QRaft is hosted as a static web application and provides zero backend data ingestion.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">3. Description of Service</h2>
+            <p className="text-ink/80">
+              QRaft is a privacy-first web application for designing 2D and 3D QR codes styled with traditional Madhubani vector motifs. All matrix calculations, contrast ratio checks, image blends, and jsQR decodes are executed entirely in client-side JavaScript.
             </p>
           </section>
 
           {/* Section 4 */}
           <section id="accounts" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">4. Client-Side Accounts & Security Disclosures</h2>
-            <p className="text-surface-muted">
-              <strong>Simulated Client-Side Authentication:</strong> All user accounts, sessions, and credentials operate strictly within your client web browser. Passwords are processed using the Web Crypto API PBKDF2 standard with SHA-256 and unique 16-byte cryptographic salts. However, because there is no remote server validating authentication state, this system provides educational demonstrations and local organization, not cryptographic multi-user server security.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">4. Client-Side Accounts & Security</h2>
+            <p className="text-ink/80">
+              User accounts in QRaft do not require an active backend server. Passwords are salted and hashed using PBKDF2 (SHA-256 with 100,000 iterations) directly inside your browser via the Web Cryptography API. Passwords and credentials never leave your browser memory.
             </p>
           </section>
 
           {/* Section 5 */}
           <section id="ugc" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">5. User Content & Intellectual Property</h2>
-            <p className="text-surface-muted">
-              You retain all ownership, intellectual property rights, and copyright to the payloads, text, URLs, and configurations you enter into QRaft. By publishing a template to the local community feed or copying a share link, you grant a worldwide, royalty-free, non-exclusive license to display the template within the application for remixing and educational purposes.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">5. User Content & Intellectual Property</h2>
+            <p className="text-ink/80">
+              You retain all ownership of the text, URLs, and data payloads you encode into QR codes. QRaft claims no intellectual property rights over codes generated by users.
             </p>
           </section>
 
           {/* Section 6 */}
           <section id="acceptable-use" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">6. Acceptable Use & Prohibited Content</h2>
-            <p className="text-surface-muted">
-              You strictly agree that you will not use QRaft to generate QR codes that link to:
+            <h2 className="text-base font-heading font-bold text-peacock-deep">6. Acceptable Use & Prohibited Content</h2>
+            <p className="text-ink/80">
+              You agree not to encode malicious URLs, phishing portals, malware payloads, or illegal materials into QR codes generated using the Service.
             </p>
-            <ul className="list-disc pl-5 space-y-1 text-surface-muted">
-              <li>Phishing websites, deceptive banking forms, or credential harvester pages;</li>
-              <li>Malware, spyware, ransomware, or drive-by exploit payloads;</li>
-              <li>Defamatory, obscene, harassing, or hate speech material;</li>
-              <li>Unsolicited commercial spam or pyramid schemes;</li>
-              <li>Content that violates trademarks, copyrights, or personal publicity rights.</li>
-            </ul>
           </section>
 
           {/* Section 7 */}
           <section id="qr-disclaimer" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">7. QR Scannability Disclaimer</h2>
-            <p className="text-surface-muted">
-              While QRaft includes automated WCAG contrast checks and simulated jsQR decoding, we make no guarantee that rendered QR codes will scan under every physical lighting, printer dpi, camera sensor, or angle condition. <strong>Users must physically scan and verify printed or published codes</strong> before committing to commercial signage or mass distribution. QRaft assumes zero liability for business losses, failed campaigns, or misdirected traffic.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">7. QR Scannability Disclaimer</h2>
+            <p className="text-ink/80">
+              While QRaft includes automated WCAG contrast checks and simulated jsQR decoding, physical scan success depends on ambient lighting, print quality, camera optics, and scanner algorithms. Always test printed codes across physical devices before production deployment.
             </p>
           </section>
 
           {/* Section 8 */}
           <section id="open-source" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">8. Third-Party Libraries & Licenses</h2>
-            <p className="text-surface-muted">
-              QRaft is built upon exceptional open-source software libraries, including:
+            <h2 className="text-base font-heading font-bold text-peacock-deep">8. Third-Party Libraries & Licenses</h2>
+            <p className="text-ink/80">
+              QRaft utilizes open-source libraries including React, Three.js, React Three Fiber, jsQR, Lucide React, and Tailwind CSS. All components are licensed under their respective MIT/Apache licenses.
             </p>
-            <ul className="list-disc pl-5 space-y-1 text-surface-muted">
-              <li><strong>React 18 & Vite:</strong> MIT License</li>
-              <li><strong>Three.js & @react-three/fiber:</strong> MIT License</li>
-              <li><strong>qrcode:</strong> MIT License</li>
-              <li><strong>jsQR:</strong> Apache 2.0 License</li>
-              <li><strong>Tailwind CSS & Framer Motion:</strong> MIT License</li>
-              <li><strong>Lucide Icons:</strong> ISC License</li>
-            </ul>
           </section>
 
           {/* Section 9 */}
           <section id="privacy" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">9. Privacy Policy (GDPR & Indian DPDP Act 2023 Compliance)</h2>
-            <p className="text-surface-muted">
-              <strong>Zero Data Transmission:</strong> QRaft does not operate tracking telemetry, analytics beacons, or server databases. All QR payload data, Wi-Fi credentials, and contact details are processed strictly in RAM and stored locally on your device.
-            </p>
-            <p className="text-surface-muted">
-              Under the Indian Digital Personal Data Protection (DPDP) Act 2023 and the European Union General Data Protection Regulation (GDPR), you possess full control over your digital personal data. You can exercise your right to erasure at any instant by clicking &quot;Delete Account & Local Storage&quot; in the Profile tab, or clearing your browser cookies and site data.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">9. Privacy Policy (GDPR & DPDP Act)</h2>
+            <p className="text-ink/80">
+              Zero personal data is harvested or transmitted to external servers. QRaft operates in adherence to the India Digital Personal Data Protection (DPDP) Act principles of data minimization and storage limitation.
             </p>
           </section>
 
           {/* Section 10 */}
           <section id="storage" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">10. LocalStorage & Cookies Notice</h2>
-            <p className="text-surface-muted">
-              QRaft does not set tracking cookies. We utilize browser <code>localStorage</code> solely for functional application state under versioned keys (<code>qraft:users:v1</code>, <code>qraft:session:v1</code>, <code>qraft:templates:v1</code>, <code>qraft:recent:v1</code>).
+            <h2 className="text-base font-heading font-bold text-peacock-deep">10. LocalStorage & Cookies Notice</h2>
+            <p className="text-ink/80">
+              QRaft does not use tracking cookies. Standard Web Storage (localStorage and sessionStorage) is used solely to persist your templates, history, and active session locally on your device.
             </p>
           </section>
 
           {/* Section 11 */}
           <section id="takedown" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">11. Takedown & Abuse Reporting</h2>
-            <p className="text-surface-muted">
-              If you identify community templates that infringe on your intellectual property, please report the post using the in-app &quot;Flag&quot; button, or email the project maintainer at <code>[ADD YOUR DETAILS: student@srmist.edu.in]</code> with the subject &quot;DMCA / Takedown Request&quot;.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">11. Takedown & Abuse Reporting</h2>
+            <p className="text-ink/80">
+              If you identify community templates that infringe on your intellectual property, please report the post using the in-app Flag button or email the project maintainer with the subject &quot;DMCA / Takedown Request&quot;.
             </p>
           </section>
 
           {/* Section 12 */}
           <section id="liability" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">12. Limitation of Liability</h2>
-            <p className="text-surface-muted">
-              To the fullest extent permitted by applicable law, the author, developers, and SRM IST shall not be liable for any indirect, incidental, punitive, or consequential damages resulting from your use or inability to use QRaft.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">12. Limitation of Liability</h2>
+            <p className="text-ink/80">
+              To the fullest extent permitted by applicable law, the author, developers, and SRM IST shall not be liable for any indirect, incidental, punitive, or consequential damages resulting from your use of QRaft.
             </p>
           </section>
 
           {/* Section 13 */}
           <section id="indemnity" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">13. Indemnification</h2>
-            <p className="text-surface-muted">
-              You agree to defend, indemnify, and hold harmless the project creator against any claims, damages, liabilities, and expenses arising from your violation of these terms or misuse of generated QR codes.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">13. Indemnification</h2>
+            <p className="text-ink/80">
+              You agree to defend and hold harmless the project creator against any claims or liabilities arising from violation of these terms or misuse of generated QR codes.
             </p>
           </section>
 
           {/* Section 14 */}
           <section id="termination" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">14. Account Deletion & Termination</h2>
-            <p className="text-surface-muted">
-              You may discontinue using QRaft at any time. Clicking &quot;Delete Account & Local Storage&quot; in the Profile tab immediately wipes all locally cached users, templates, and recent history.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">14. Account Deletion & Data Wipe</h2>
+            <p className="text-ink/80">
+              You may purge your local data at any time. Clicking &quot;Delete Account & Local Storage&quot; in the Profile tab immediately wipes all locally stored items and user records.
             </p>
           </section>
 
           {/* Section 15 */}
           <section id="modifications" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">15. Modifications to Terms</h2>
-            <p className="text-surface-muted">
+            <h2 className="text-base font-heading font-bold text-peacock-deep">15. Modifications to Terms</h2>
+            <p className="text-ink/80">
               We reserve the right to revise these terms as necessary. Continued use of QRaft after modifications indicates your acceptance of updated provisions.
             </p>
           </section>
 
           {/* Section 16 */}
           <section id="governing-law" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">16. Governing Law & Jurisdiction</h2>
-            <p className="text-surface-muted">
-              These terms shall be governed by and construed in accordance with the laws of <strong>India</strong>, and subject to the exclusive jurisdiction of the competent courts in <code>[ADD YOUR DETAILS: Chennai, Tamil Nadu, India]</code>.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">16. Governing Law & Jurisdiction</h2>
+            <p className="text-ink/80">
+              These terms shall be governed by and construed in accordance with the laws of <strong>India</strong>, and subject to the exclusive jurisdiction of the competent courts in <strong>{siteConfig.legal.jurisdiction}</strong>.
             </p>
           </section>
 
           {/* Section 17 */}
           <section id="contact" className="scroll-mt-8 space-y-2">
-            <h2 className="text-base font-bold text-surface-text">17. Contact & Student Developer Info</h2>
-            <p className="text-surface-muted">
-              This application was engineered by an applicant for the GDG on Campus, SRM Institute of Science and Technology Frontend Domain recruitment (Technical Submission: &quot;QR Code Generator & Designer&quot;).
+            <h2 className="text-base font-heading font-bold text-peacock-deep">17. Contact & Student Developer Information</h2>
+            <p className="text-ink/80">
+              This application was engineered by an applicant for the GDG on Campus, SRM Institute of Science and Technology Frontend Domain recruitment.
             </p>
-            <div className="p-4 rounded-2xl bg-surface-soft border border-surface-border text-xs space-y-1 font-mono">
-              <p>Developer: <code>[ADD YOUR DETAILS: Student Developer Name]</code></p>
-              <p>Email: <code>[ADD YOUR DETAILS: student@srmist.edu.in]</code></p>
-              <p>Institution: SRM Institute of Science and Technology, Kattankulathur</p>
-              <p>Repository: <code>qraft-qr-designer</code></p>
+            <div className="p-4 rounded-2xl bg-paper border border-paper-border text-xs space-y-1.5 font-mono text-ink">
+              <p>Project: <strong>{siteConfig.name} &mdash; {siteConfig.tagline}</strong></p>
+              <p>Institution: {siteConfig.author.college}</p>
+              {siteConfig.author.name && <p>Developer: {siteConfig.author.name}</p>}
+              {siteConfig.author.email && <p>Contact: {siteConfig.author.email}</p>}
+              {siteConfig.author.repoUrl && <p>Repository: {siteConfig.author.repoUrl}</p>}
             </div>
           </section>
+
+          <MadhubaniArtCredit className="pt-4 border-t border-paper-border" />
         </main>
       </div>
     </div>

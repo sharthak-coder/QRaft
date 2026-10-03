@@ -3,6 +3,8 @@ import QRCode from 'qrcode';
 import { RecentItem } from '../../types';
 import { RecentStore } from '../../services/recent';
 import { Clock, Trash2, ArrowUpRight, Copy, Check } from 'lucide-react';
+import { Corner } from '../../art/Corner';
+import { EmptyStateScene } from '../ui/EmptyStateScene';
 
 interface RecentTabProps {
   onLoadItem?: (item: RecentItem) => void;
@@ -49,43 +51,48 @@ const RecentCard: React.FC<{
   });
 
   return (
-    <div className="p-4 rounded-3xl bg-white/90 backdrop-blur-md border border-surface-border shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between group">
+    <div
+      className="p-4 rounded-3xl bg-paper-2/95 border border-paper-border shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between group relative overflow-hidden"
+      style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+    >
+      <Corner position="top-right" size={20} strokeColor="#13504D" fillColor="#F79454" />
+
       <div>
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-google-blue-royal uppercase tracking-wider">
+          <span className="text-[11px] font-heading font-bold px-2.5 py-0.5 rounded-full bg-saffron-50 text-peacock-deep border border-saffron-300 uppercase tracking-wider">
             {item.type}
           </span>
-          <span className="text-[11px] text-surface-muted">{formattedDate}</span>
+          <span className="text-[11px] text-ink/65 font-mono">{formattedDate}</span>
         </div>
 
         {/* Mini Preview Canvas */}
-        <div className="w-full flex items-center justify-center p-3 rounded-2xl bg-surface-soft border border-surface-border mb-3">
+        <div className="w-full flex items-center justify-center p-3 rounded-2xl bg-paper border border-paper-border mb-3 shadow-inner">
           <canvas ref={canvasRef} className="rounded-lg shadow-sm" />
         </div>
 
-        <p className="text-xs font-semibold text-surface-text line-clamp-2 mb-1" title={item.summary}>
+        <p className="text-xs font-heading font-bold text-peacock-deep line-clamp-2 mb-1" title={item.summary}>
           {item.summary}
         </p>
 
-        <p className="text-[11px] font-mono text-surface-muted truncate">
+        <p className="text-[11px] font-mono text-ink/65 truncate">
           {item.payload}
         </p>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-surface-border flex items-center justify-between">
+      <div className="mt-4 pt-3 border-t border-paper-border flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={handleCopyPayload}
-            className="p-1.5 text-surface-muted hover:text-surface-text rounded-lg hover:bg-surface-soft transition-colors"
+            className="p-1.5 text-ink/70 hover:text-peacock-deep rounded-lg hover:bg-paper transition-colors"
             title="Copy payload text"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-google-green" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-peacock" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
           <button
             type="button"
             onClick={() => onDelete(item.id)}
-            className="p-1.5 text-surface-muted hover:text-google-red rounded-lg hover:bg-red-50 transition-colors"
+            className="p-1.5 text-ink/70 hover:text-vermilion rounded-lg hover:bg-vermilion-50 transition-colors"
             title="Delete from recent"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -95,7 +102,7 @@ const RecentCard: React.FC<{
         <button
           type="button"
           onClick={() => onReuse(item)}
-          className="inline-flex items-center gap-1 text-xs font-bold text-google-blue-royal hover:text-google-blue-deep transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-heading font-bold text-vermilion hover:text-vermilion-500 transition-colors cursor-pointer"
         >
           <span>Use in Studio</span>
           <ArrowUpRight className="w-3.5 h-3.5" />
@@ -132,15 +139,20 @@ export const RecentTab: React.FC<RecentTabProps> = ({ onLoadItem }) => {
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/90 backdrop-blur-md p-5 rounded-3xl border border-surface-border shadow-card">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-paper-2/95 p-5 rounded-3xl border border-paper-border shadow-card"
+        style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+      >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-blue-50 text-google-blue-royal flex items-center justify-center">
+          <div className="w-10 h-10 rounded-2xl bg-peacock/10 text-peacock-deep flex items-center justify-center border border-peacock/20">
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-surface-text">Recent QR History</h2>
-            <p className="text-xs text-surface-muted">
-              Last {items.length} generated items persisted in local browser storage.
+            <h2 className="text-base font-heading font-bold text-peacock-deep">Recent QR History</h2>
+            <p className="text-xs text-ink/70">
+              {items.length === 0
+                ? 'Your local session history is currently empty.'
+                : `${items.length} recently generated QR codes stored in local browser memory.`}
             </p>
           </div>
         </div>
@@ -149,7 +161,7 @@ export const RecentTab: React.FC<RecentTabProps> = ({ onLoadItem }) => {
           <button
             type="button"
             onClick={handleClearAll}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-google-red hover:bg-red-50 border border-red-200 transition-colors"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-heading font-bold text-vermilion hover:bg-vermilion-50 border border-vermilion/30 transition-colors cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Clear History</span>
@@ -158,15 +170,11 @@ export const RecentTab: React.FC<RecentTabProps> = ({ onLoadItem }) => {
       </div>
 
       {items.length === 0 ? (
-        <div className="p-12 text-center bg-white/80 rounded-3xl border border-surface-border shadow-sm flex flex-col items-center">
-          <div className="w-12 h-12 rounded-2xl bg-surface-soft flex items-center justify-center text-surface-muted mb-3">
-            <Clock className="w-6 h-6" />
-          </div>
-          <h3 className="text-sm font-bold text-surface-text">No Recent QR Codes</h3>
-          <p className="text-xs text-surface-muted mt-1 max-w-sm">
-            Codes you generate or download in the QR Generator tab will automatically be remembered here for easy reuse.
-          </p>
-        </div>
+        <EmptyStateScene
+          motif="lotus"
+          title="No Recent QR Codes"
+          description="A serene lotus rests on clear water. QR codes you generate or download in the studio will automatically appear here for one-tap reuse."
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (

@@ -5,6 +5,9 @@ import { CommunityStore } from '../../services/community';
 import { encodeTemplateToShareLink } from '../../lib/shareLink';
 import { generatePayload } from '../../lib/payload';
 import { useAuth } from '../../hooks/useAuth';
+import { Corner } from '../../art/Corner';
+import { Lotus } from '../../art/Lotus';
+import { EmptyStateScene } from '../ui/EmptyStateScene';
 import {
   Heart,
   GitFork,
@@ -73,57 +76,67 @@ const PostCard: React.FC<{
   };
 
   return (
-    <div className="p-6 rounded-3xl bg-white/95 backdrop-blur-md border border-surface-border shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between">
+    <div
+      className="p-6 rounded-3xl bg-paper-2/95 border border-paper-border shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between relative overflow-hidden"
+      style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+    >
+      <Corner position="top-right" size={24} strokeColor="#13504D" fillColor="#F79454" />
+
       <div>
         {/* Post Header: Author Avatar & Name & Follow Button */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm"
-              style={{ backgroundColor: post.author.avatarColor }}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white font-heading font-bold text-xs shadow-sm"
+              style={{ backgroundColor: post.author.avatarColor || '#13504D' }}
             >
               {post.author.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-xs font-bold text-surface-text">{post.author.name}</p>
-              <p className="text-[10px] text-surface-muted">
-                {new Date(post.createdAt).toLocaleDateString(undefined, {
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </p>
+              <p className="text-xs font-heading font-bold text-peacock-deep">{post.author.name}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-saffron-50 text-peacock-deep border border-saffron-300">
+                  Sample Template
+                </span>
+                <span className="text-[10px] text-ink/65 font-mono">
+                  {new Date(post.createdAt).toLocaleDateString(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+              </div>
             </div>
           </div>
 
           <button
             type="button"
             onClick={() => onToggleFollow(post.author.id)}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-heading font-semibold transition-colors cursor-pointer ${
               isFollowing
-                ? 'bg-emerald-50 text-google-green border border-emerald-200'
-                : 'bg-surface-soft text-surface-muted hover:text-surface-text border border-surface-border'
+                ? 'bg-peacock/15 text-peacock-deep border border-peacock/30'
+                : 'bg-paper text-ink/75 hover:text-peacock-deep border border-paper-border'
             }`}
           >
-            {isFollowing ? <UserCheck className="w-3 h-3" /> : <UserPlus className="w-3 h-3" />}
+            {isFollowing ? <UserCheck className="w-3 h-3 text-peacock" /> : <UserPlus className="w-3 h-3" />}
             <span>{isFollowing ? 'Following' : 'Follow'}</span>
           </button>
         </div>
 
         {/* QR Preview Canvas */}
-        <div className="w-full flex items-center justify-center p-4 rounded-2xl bg-surface-soft border border-surface-border mb-4">
+        <div className="w-full flex items-center justify-center p-4 rounded-2xl bg-paper border border-paper-border mb-4 shadow-inner">
           <canvas ref={canvasRef} className="rounded-xl shadow-sm" />
         </div>
 
         {/* Post Title & Description */}
-        <h3 className="text-sm font-bold text-surface-text mb-1">{post.title}</h3>
-        <p className="text-xs text-surface-muted leading-relaxed line-clamp-2 mb-3">
+        <h3 className="text-sm font-heading font-bold text-peacock-deep mb-1">{post.title}</h3>
+        <p className="text-xs text-ink/75 leading-relaxed line-clamp-2 mb-3">
           {post.description}
         </p>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5 mb-4">
           {post.tags.map((tag, i) => (
-            <span key={i} className="text-[10px] font-medium bg-surface-soft px-2 py-0.5 rounded-md text-surface-muted">
+            <span key={i} className="text-[10px] font-medium bg-paper px-2 py-0.5 rounded-md text-ink/75 border border-paper-border">
               #{tag}
             </span>
           ))}
@@ -131,20 +144,20 @@ const PostCard: React.FC<{
       </div>
 
       {/* Interactions Toolbar */}
-      <div className="pt-3 border-t border-surface-border">
+      <div className="pt-3 border-t border-paper-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {/* Like button */}
             <button
               type="button"
               onClick={() => onLike(post.id)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
                 post.likedByMe
-                  ? 'bg-red-50 text-google-red font-bold'
-                  : 'text-surface-muted hover:text-surface-text hover:bg-surface-soft'
+                  ? 'bg-vermilion-50 text-vermilion font-bold border border-vermilion/30'
+                  : 'text-ink/75 hover:text-peacock-deep hover:bg-paper'
               }`}
             >
-              <Heart className={`w-3.5 h-3.5 ${post.likedByMe ? 'fill-current' : ''}`} />
+              <Heart className={`w-3.5 h-3.5 ${post.likedByMe ? 'fill-current text-vermilion' : ''}`} />
               <span>{post.likesCount}</span>
             </button>
 
@@ -152,8 +165,8 @@ const PostCard: React.FC<{
             <button
               type="button"
               onClick={() => onRemix(post)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-surface-muted hover:text-google-blue-royal hover:bg-blue-50 transition-colors"
-              title="Copy to your templates with attribution"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-heading font-bold text-peacock-deep hover:bg-paper transition-colors cursor-pointer border border-transparent hover:border-paper-border"
+              title="Copy to your local templates with attribution"
             >
               <GitFork className="w-3.5 h-3.5" />
               <span>Remix</span>
@@ -163,7 +176,7 @@ const PostCard: React.FC<{
             <button
               type="button"
               onClick={() => setShowComments(!showComments)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-surface-muted hover:text-surface-text hover:bg-surface-soft transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-ink/75 hover:text-peacock-deep hover:bg-paper transition-colors cursor-pointer"
             >
               <MessageCircle className="w-3.5 h-3.5" />
               <span>{post.comments.length}</span>
@@ -175,20 +188,20 @@ const PostCard: React.FC<{
             <button
               type="button"
               onClick={handleShareLink}
-              className="p-1.5 text-surface-muted hover:text-google-blue-royal rounded-lg hover:bg-blue-50 transition-colors"
+              className="p-1.5 text-ink/75 hover:text-peacock-deep rounded-lg hover:bg-paper transition-colors cursor-pointer"
               title="Copy cross-device URL share link"
             >
-              {copiedLink ? <Check className="w-3.5 h-3.5 text-google-green" /> : <Share2 className="w-3.5 h-3.5" />}
+              {copiedLink ? <Check className="w-3.5 h-3.5 text-peacock" /> : <Share2 className="w-3.5 h-3.5" />}
             </button>
 
             {/* Report */}
             <button
               type="button"
               onClick={() => onReport(post.id)}
-              className={`p-1.5 rounded-lg transition-colors ${
+              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                 post.reported
-                  ? 'text-google-red bg-red-50'
-                  : 'text-surface-muted hover:text-google-red hover:bg-red-50'
+                  ? 'text-vermilion bg-vermilion-50'
+                  : 'text-ink/65 hover:text-vermilion hover:bg-vermilion-50'
               }`}
               title="Report content"
             >
@@ -199,15 +212,15 @@ const PostCard: React.FC<{
 
         {/* Comment Thread Drawer */}
         {showComments && (
-          <div className="mt-4 pt-3 border-t border-surface-border space-y-3">
+          <div className="mt-4 pt-3 border-t border-paper-border space-y-3">
             <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
               {post.comments.length === 0 ? (
-                <p className="text-[11px] text-surface-muted italic">No comments yet. Be the first to chime in!</p>
+                <p className="text-[11px] text-ink/65 italic">No notes yet. Add your review below.</p>
               ) : (
                 post.comments.map((c) => (
-                  <div key={c.id} className="text-xs bg-surface-soft p-2.5 rounded-xl border border-surface-border/60">
-                    <span className="font-bold text-surface-text mr-1.5">{c.authorName}:</span>
-                    <span className="text-surface-muted">{c.text}</span>
+                  <div key={c.id} className="text-xs bg-paper p-2.5 rounded-xl border border-paper-border">
+                    <span className="font-heading font-bold text-peacock-deep mr-1.5">{c.authorName}:</span>
+                    <span className="text-ink/80">{c.text}</span>
                   </div>
                 ))
               )}
@@ -220,11 +233,11 @@ const PostCard: React.FC<{
                 value={commentInput}
                 onChange={(e) => setCommentInput(e.target.value)}
                 placeholder="Write a comment..."
-                className="flex-1 px-3 py-1.5 rounded-xl border border-surface-border text-xs focus:outline-none focus:ring-2 focus:ring-google-blue bg-white"
+                className="flex-1 px-3 py-1.5 rounded-xl border border-paper-border text-xs focus:outline-none focus:ring-2 focus:ring-peacock-deep bg-paper text-ink"
               />
               <button
                 type="submit"
-                className="px-3 py-1.5 rounded-xl bg-google-blue-royal text-white text-xs font-semibold hover:bg-google-blue-deep transition-colors"
+                className="px-3 py-1.5 rounded-xl bg-vermilion hover:bg-vermilion-500 text-white text-xs font-heading font-bold transition-colors cursor-pointer"
               >
                 <Send className="w-3 h-3" />
               </button>
@@ -264,10 +277,10 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ onRemixSuccess }) =>
   };
 
   const handleReport = (id: string) => {
-    if (window.confirm('Report this post for moderation review?')) {
+    if (window.confirm('Report this sample template for review?')) {
       CommunityStore.report(id);
       reloadPosts();
-      alert('Thank you. This post has been marked for moderation.');
+      alert('Thank you. This item has been marked for review.');
     }
   };
 
@@ -275,7 +288,7 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ onRemixSuccess }) =>
     CommunityStore.addComment(
       postId,
       user?.id || 'guest',
-      user?.name || 'Guest User',
+      user?.name || 'Guest Designer',
       text
     );
     reloadPosts();
@@ -311,53 +324,60 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ onRemixSuccess }) =>
 
   return (
     <div className="w-full space-y-6">
-      {/* Community Banner / Honest Limitation Note */}
-      <div className="p-4 rounded-3xl bg-blue-50/70 border border-blue-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-blue-900">
+      {/* Community Banner / Honest Architecture Note */}
+      <div
+        className="p-4 rounded-3xl bg-paper-2 border border-paper-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-ink/80 relative overflow-hidden"
+        style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+      >
         <div className="flex items-center gap-2.5">
-          <Info className="w-5 h-5 text-google-blue-royal flex-shrink-0" />
+          <Info className="w-5 h-5 text-peacock-deep flex-shrink-0" />
           <p>
-            <strong>Decentralized Sharing Architecture:</strong> The community feed is local to this browser session. To share a design with other devices, use the <strong>"Copy Share Link"</strong> button, which encodes the template into the URL hash.
+            <strong>Template Gallery Notice:</strong> All cards shown below are curated <strong>sample templates</strong> designed with QRaft. To share a design cross-device, click <strong>"Share"</strong> to generate a URL hash that any browser can decode.
           </p>
         </div>
         <button
           type="button"
           onClick={handleResetCommunity}
-          className="text-xs text-google-blue-royal font-bold hover:underline whitespace-nowrap"
+          className="text-xs text-peacock-deep font-heading font-bold hover:underline whitespace-nowrap cursor-pointer"
         >
-          Reset Seed Data
+          Reset Samples
         </button>
       </div>
 
       {toastMessage && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 text-google-green text-xs font-bold rounded-2xl text-center animate-fade-in">
-          {toastMessage}
+        <div className="p-3 bg-peacock/15 border border-peacock/30 text-peacock-deep text-xs font-bold rounded-2xl text-center flex items-center justify-center gap-2">
+          <Lotus size={16} strokeColor="#13504D" fillColor="#F79454" />
+          <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Search and Sort Toolbar */}
-      <div className="bg-white/90 backdrop-blur-md p-5 rounded-3xl border border-surface-border shadow-card flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div
+        className="bg-paper-2/95 p-5 rounded-3xl border border-paper-border shadow-card flex flex-col sm:flex-row items-center justify-between gap-4"
+        style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+      >
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-surface-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-ink/60 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search community designs..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-surface-border text-xs focus:outline-none focus:ring-2 focus:ring-google-blue bg-surface-soft"
+            placeholder="Search sample designs..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-paper-border text-xs focus:outline-none focus:ring-2 focus:ring-peacock-deep bg-paper text-ink"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-surface-muted flex items-center gap-1">
+          <span className="text-xs font-heading font-bold text-peacock-deep flex items-center gap-1">
             <Filter className="w-3.5 h-3.5" /> Sort:
           </span>
           <button
             type="button"
             onClick={() => setSortBy('likes')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-heading font-bold transition-colors cursor-pointer ${
               sortBy === 'likes'
-                ? 'bg-google-blue-royal text-white'
-                : 'bg-surface-soft text-surface-muted hover:text-surface-text'
+                ? 'bg-peacock-deep text-white shadow-sm'
+                : 'bg-paper text-ink/75 hover:text-peacock-deep border border-paper-border'
             }`}
           >
             Most Liked
@@ -365,10 +385,10 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ onRemixSuccess }) =>
           <button
             type="button"
             onClick={() => setSortBy('newest')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-heading font-bold transition-colors cursor-pointer ${
               sortBy === 'newest'
-                ? 'bg-google-blue-royal text-white'
-                : 'bg-surface-soft text-surface-muted hover:text-surface-text'
+                ? 'bg-peacock-deep text-white shadow-sm'
+                : 'bg-paper text-ink/75 hover:text-peacock-deep border border-paper-border'
             }`}
           >
             Newest
@@ -377,20 +397,28 @@ export const CommunityTab: React.FC<CommunityTabProps> = ({ onRemixSuccess }) =>
       </div>
 
       {/* Grid of Community Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            onLike={handleLike}
-            onRemix={handleRemix}
-            onReport={handleReport}
-            onAddComment={handleAddComment}
-            isFollowing={isUserFollowing(post.author.id)}
-            onToggleFollow={toggleFollow}
-          />
-        ))}
-      </div>
+      {filtered.length === 0 ? (
+        <EmptyStateScene
+          motif="bird"
+          title="No Designs Found"
+          description="No sample templates matched your search keywords. Try searching for 'wifi', 'badge', or clear the filter."
+        />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              onLike={handleLike}
+              onRemix={handleRemix}
+              onReport={handleReport}
+              onAddComment={handleAddComment}
+              isFollowing={isUserFollowing(post.author.id)}
+              onToggleFollow={toggleFollow}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

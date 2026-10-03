@@ -62,7 +62,8 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
         ref={containerRef}
         role="tablist"
         aria-label="Workspace feature tabs"
-        className="flex items-center gap-1.5 p-1.5 bg-white/90 backdrop-blur-md rounded-2xl border border-surface-border shadow-card max-w-full overflow-x-auto no-scrollbar scroll-smooth snap-x"
+        className="flex items-center gap-1.5 p-1.5 bg-paper-2/95 backdrop-blur-md rounded-2xl border-2 border-peacock-deep/20 shadow-card max-w-full overflow-x-auto no-scrollbar scroll-smooth snap-x"
+        style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
       >
         {WORKSPACE_TABS.map((tab, idx) => {
           const isActive = activeTab === tab.id;
@@ -79,31 +80,34 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
               tabIndex={isActive ? 0 : -1}
               onClick={() => onTabChange(tab.id)}
               onKeyDown={(e) => handleKeyDown(e, idx)}
-              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors snap-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-google-blue ${
+              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-heading font-bold transition-colors snap-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-peacock-deep ${
                 isActive
                   ? 'text-white'
-                  : 'text-surface-muted hover:text-surface-text hover:bg-slate-50/80'
+                  : 'text-ink/75 hover:text-peacock-deep hover:bg-paper'
               }`}
             >
-              {/* Sliding Pill Indicator */}
+              {/* Sliding Pill Indicator with Lotus Bud Motif & Hand-Drawn Underline */}
               {isActive && (
                 <motion.div
                   layoutId="activeTabPill"
-                  className="absolute inset-0 bg-gradient-to-r from-google-blue-royal to-google-blue rounded-xl shadow-royal-glow"
+                  className="absolute inset-0 bg-peacock-deep rounded-xl shadow-peacock-glow flex flex-col justify-end overflow-hidden"
                   transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                />
+                >
+                  {/* Subtle hand-drawn wavy underline */}
+                  <span className="w-full h-[2.5px] bg-saffron opacity-90 block" />
+                </motion.div>
               )}
 
               {/* Tab Content */}
               <span className="relative z-10 flex items-center gap-2">
-                <Icon className={`w-4 h-4 transition-transform ${isActive ? 'scale-110' : ''}`} />
+                <Icon className={`w-4 h-4 transition-transform ${isActive ? 'scale-110 text-saffron' : ''}`} />
                 <span>{tab.label}</span>
                 {tab.badge && (
                   <span
                     className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
                       isActive
-                        ? 'bg-white/20 text-white'
-                        : 'bg-google-blue/10 text-google-blue-royal'
+                        ? 'bg-saffron text-ink'
+                        : 'bg-peacock/15 text-peacock-deep'
                     }`}
                   >
                     {tab.badge}

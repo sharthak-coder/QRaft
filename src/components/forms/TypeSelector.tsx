@@ -23,7 +23,7 @@ const QR_TYPES: Array<{
 export const TypeSelector: React.FC<TypeSelectorProps> = ({ activeType, onChange }) => {
   return (
     <div className="w-full">
-      <label className="block text-xs font-bold text-surface-muted uppercase tracking-wider mb-2">
+      <label className="block text-xs font-heading font-bold text-peacock-deep uppercase tracking-wider mb-2">
         Select QR Code Type
       </label>
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -36,23 +36,23 @@ export const TypeSelector: React.FC<TypeSelectorProps> = ({ activeType, onChange
               key={t.id}
               type="button"
               onClick={() => onChange(t.id)}
-              className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all text-center group focus:outline-none focus:ring-2 focus:ring-google-blue ${
+              className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all text-center group focus:outline-none focus:ring-2 focus:ring-peacock-deep ${
                 isActive
-                  ? 'bg-gradient-to-b from-blue-50/90 to-white border-google-blue-royal text-google-blue-royal shadow-sm ring-1 ring-google-blue-royal/20'
-                  : 'bg-white/80 border-surface-border hover:border-slate-300 text-surface-text hover:bg-surface-soft'
+                  ? 'bg-paper-2 border-2 border-peacock-deep text-peacock-deep shadow-sm ring-1 ring-peacock-deep/20'
+                  : 'bg-paper border border-paper-border hover:border-peacock/40 text-ink hover:bg-paper-2'
               }`}
             >
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center mb-1.5 transition-transform group-hover:scale-110 ${
                   isActive
-                    ? 'bg-google-blue-royal text-white shadow-sm'
-                    : 'bg-surface-soft text-surface-muted group-hover:text-surface-text'
+                    ? 'bg-peacock-deep text-white shadow-sm'
+                    : 'bg-paper-2 text-ink/70 group-hover:text-peacock-deep'
                 }`}
               >
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold leading-tight">{t.label}</span>
-              <span className="text-[10px] text-surface-muted mt-0.5 hidden sm:block">{t.description}</span>
+              <span className="text-xs font-heading font-bold leading-tight">{t.label}</span>
+              <span className="text-[10px] text-ink/65 mt-0.5 hidden sm:block">{t.description}</span>
             </button>
           );
         })}
