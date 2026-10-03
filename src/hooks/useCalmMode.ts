@@ -19,8 +19,15 @@ export function useCalmMode() {
     }
 
     // Default to true if system prefers reduced motion
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (typeof window.matchMedia === 'function') {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+    return false;
   });
+
+  const prefersReducedMotion = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
 
   useEffect(() => {
     const handleStorage = (e: StorageEvent) => {
@@ -34,22 +41,29 @@ export function useCalmMode() {
       setIsCalm(customEvent.detail);
     };
 
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleMediaChange = (e: MediaQueryListEvent) => {
-      const saved = localStorage.getItem(CALM_MODE_KEY);
-      if (saved === null && e.matches) {
-        setIsCalm(true);
-      }
-    };
-
     window.addEventListener('storage', handleStorage);
     window.addEventListener(EVENT_NAME, handleCustom);
-    mediaQuery.addEventListener('change', handleMediaChange);
+
+    let mediaQuery: MediaQueryList | null = null;
+    let handleMediaChange: ((e: MediaQueryListEvent) => void) | null = null;
+
+    if (typeof window.matchMedia === 'function') {
+      mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      handleMediaChange = (e: MediaQueryListEvent) => {
+        const saved = localStorage.getItem(CALM_MODE_KEY);
+        if (saved === null && e.matches) {
+          setIsCalm(true);
+        }
+      };
+      mediaQuery.addEventListener('change', handleMediaChange);
+    }
 
     return () => {
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener(EVENT_NAME, handleCustom);
-      mediaQuery.removeEventListener('change', handleMediaChange);
+      if (mediaQuery && handleMediaChange) {
+        mediaQuery.removeEventListener('change', handleMediaChange);
+      }
     };
   }, []);
 
@@ -69,5 +83,6 @@ export function useCalmMode() {
   return {
     isCalm,
     toggleCalmMode,
+    prefersReducedMotion,
   };
 }
