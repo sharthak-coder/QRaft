@@ -33,6 +33,7 @@ export const Navbar: React.FC = () => {
                 : 'bg-rice-panel text-indigo-ink/80 border-rice-border hover:border-indigo-ink/40'
             }`}
             title={isCalm ? 'Calm mode is ACTIVE (motion & particles paused)' : 'Click to enable Calm mode (quieter background)'}
+            aria-label="Toggle Calm Mode"
             aria-pressed={isCalm}
           >
             {isCalm ? <EyeOff className="w-3.5 h-3.5 text-indigo-ink" /> : <Eye className="w-3.5 h-3.5 text-indigo-ink/70" />}
