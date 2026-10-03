@@ -1,7 +1,7 @@
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
-import { AbstractBackground } from './components/ui/AbstractBackground';
+import { MadhubaniBackground } from './components/ui/MadhubaniBackground';
 import { GateGuard } from './components/layout/GateGuard';
 import { WelcomePage } from './pages/Welcome';
 import { LoginPage } from './pages/Login';
@@ -13,9 +13,8 @@ export const App: React.FC = () => {
   return (
     <HashRouter>
       <AuthProvider>
-        <div className="relative min-h-screen bg-[#F8FAFF] text-surface-text selection:bg-google-blue/20 selection:text-google-blue-royal font-sans">
-          {/* Global Ambient Animated Google Palette Blobs */}
-          <AbstractBackground />
+        <div className="relative min-h-screen bg-paper text-ink selection:bg-saffron/25 selection:text-peacock-deep font-sans">
+          <MadhubaniBackground />
 
           {/* Route Handlers */}
           <Routes>

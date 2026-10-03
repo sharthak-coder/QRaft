@@ -21,21 +21,26 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, classN
 
   return (
     <div className={`inline-flex items-center gap-2.5 select-none ${className}`}>
-      {/* 4 Rounded Squares representing QR modules in Google Palette */}
+      {/* Handcrafted Madhubani QR Icon Mark */}
       <div
-        className={`${iconSizes[size]} grid grid-cols-2 gap-1 p-1 bg-white rounded-xl shadow-sm border border-surface-border/80 flex-shrink-0`}
+        className={`${iconSizes[size]} relative p-1 bg-paper-2 rounded-xl shadow-sm border border-peacock-deep/20 flex-shrink-0 grid grid-cols-2 gap-1 overflow-hidden`}
+        style={{ outline: '1px solid rgba(19, 80, 77, 0.15)', outlineOffset: '1px' }}
         aria-hidden="true"
       >
-        <span className="bg-google-blue rounded-[3px] transition-transform hover:scale-105" />
-        <span className="bg-google-red rounded-[3px] transition-transform hover:scale-105" />
-        <span className="bg-google-yellow rounded-[3px] transition-transform hover:scale-105" />
-        <span className="bg-google-green rounded-[3px] transition-transform hover:scale-105" />
+        <span className="bg-peacock-deep rounded-[3px] transition-transform hover:scale-105" />
+        <span className="bg-vermilion rounded-[3px] transition-transform hover:scale-105" />
+        <span className="bg-saffron rounded-[3px] transition-transform hover:scale-105" />
+        <span className="bg-sage rounded-[3px] transition-transform hover:scale-105" />
+        {/* Center Tilak Dot */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span className="w-1.5 h-1.5 rounded-full bg-paper border border-peacock-deep/40 shadow-sm" />
+        </div>
       </div>
 
       {showText && (
         <div className="flex flex-col leading-none">
-          <span className={`font-heading font-extrabold tracking-tight text-surface-text ${textSizes[size]}`}>
-            QR<span className="text-google-blue-royal">aft</span>
+          <span className={`font-heading font-extrabold tracking-tight text-peacock-deep ${textSizes[size]}`}>
+            QR<span className="text-vermilion">aft</span>
           </span>
         </div>
       )}
