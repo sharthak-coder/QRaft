@@ -15,14 +15,14 @@ describe('Cross-Device Share Link Engine (shareLink.ts)', () => {
     inputs: { url: 'https://gdg.community.dev/srm-ist' },
     style: {
       size: 360,
-      fgColor: '#13504D',
-      bgColor: '#FFFDF8',
+      fgColor: '#1A3644',
+      bgColor: '#F6F1E8',
       ecl: 'H',
       margin: 4,
       moduleShape: 'connected',
       finderShape: 'rounded',
       gradientType: 'linear',
-      gradientColor: '#2F7A72',
+      gradientColor: '#2D5A3E',
       artStyle: 'katchni',
       paintedTexture: true,
     },
@@ -55,12 +55,12 @@ describe('Cross-Device Share Link Engine (shareLink.ts)', () => {
     expect(decoded?.name).toBe('Madhubani Peacock Design');
     expect(decoded?.type).toBe('url');
     expect(decoded?.inputs.url).toBe('https://gdg.community.dev/srm-ist');
-    expect(decoded?.style.fgColor).toBe('#13504D');
+    expect(decoded?.style.fgColor).toBe('#1A3644');
     expect(decoded?.style.ecl).toBe('H');
     expect(decoded?.style.moduleShape).toBe('connected');
     expect(decoded?.style.finderShape).toBe('rounded');
     expect(decoded?.style.gradientType).toBe('linear');
-    expect(decoded?.style.gradientColor).toBe('#2F7A72');
+    expect(decoded?.style.gradientColor).toBe('#2D5A3E');
     expect(decoded?.style.artStyle).toBe('katchni');
     expect(decoded?.style.paintedTexture).toBe(true);
     expect(decoded?.authorName).toBe('Aanya');

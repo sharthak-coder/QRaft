@@ -1,30 +1,46 @@
 import { Template } from '../types';
 import { SEED_TEMPLATES } from './seed';
+import { migrateQrStyle } from '../lib/paletteMigration';
 
-const TEMPLATES_KEY = 'qraft:templates:v1';
+export const TEMPLATES_KEY_V1 = 'qraft:templates:v1';
+export const TEMPLATES_KEY_V2 = 'qraft:templates:v2';
 
 export class TemplateStore {
+  /**
+   * Retrieves all templates, automatically migrating legacy v1 stores into v2 format
+   */
   public static getAll(): Template[] {
     try {
-      const data = localStorage.getItem(TEMPLATES_KEY);
-      if (!data) {
-        // Pre-seed default templates
-        this.saveAll(SEED_TEMPLATES);
-        return SEED_TEMPLATES;
+      // 1. Try reading v2 store
+      const v2Data = localStorage.getItem(TEMPLATES_KEY_V2);
+      if (v2Data) {
+        const parsed = JSON.parse(v2Data);
+        if (Array.isArray(parsed)) {
+          return parsed.map((item: any) => ({
+            ...item,
+            style: migrateQrStyle(item.style),
+          }));
+        }
       }
-      const parsed = JSON.parse(data);
-      if (!Array.isArray(parsed)) return SEED_TEMPLATES;
-      return parsed.map((item: any) => ({
-        ...item,
-        style: {
-          moduleShape: 'square',
-          finderShape: 'square',
-          gradientType: 'none',
-          artStyle: 'none',
-          paintedTexture: false,
-          ...(item.style || {}),
-        },
-      }));
+
+      // 2. Check for legacy v1 store and migrate
+      const v1Data = localStorage.getItem(TEMPLATES_KEY_V1);
+      if (v1Data) {
+        const parsedV1 = JSON.parse(v1Data);
+        if (Array.isArray(parsedV1)) {
+          const migrated: Template[] = parsedV1.map((item: any) => ({
+            ...item,
+            style: migrateQrStyle(item.style),
+            updatedAt: Date.now(),
+          }));
+          this.saveAll(migrated);
+          return migrated;
+        }
+      }
+
+      // 3. Pre-seed default folk templates if store is empty
+      this.saveAll(SEED_TEMPLATES);
+      return SEED_TEMPLATES;
     } catch {
       return SEED_TEMPLATES;
     }
@@ -32,7 +48,7 @@ export class TemplateStore {
 
   public static saveAll(templates: Template[]): void {
     try {
-      localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
+      localStorage.setItem(TEMPLATES_KEY_V2, JSON.stringify(templates));
     } catch (err) {
       console.error('Failed to save templates', err);
     }
@@ -57,6 +73,7 @@ export class TemplateStore {
     const all = this.getAll();
     const newTemplate: Template = {
       ...data,
+      style: migrateQrStyle(data.style),
       id: `tmpl_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -76,6 +93,7 @@ export class TemplateStore {
     const updated: Template = {
       ...all[index],
       ...updates,
+      style: updates.style ? migrateQrStyle(updates.style) : all[index].style,
       updatedAt: Date.now(),
     };
     all[index] = updated;

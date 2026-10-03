@@ -6,6 +6,7 @@ import {
   GradientType,
   MadhubaniArtStyle,
 } from '../types';
+import { migrateColor } from './paletteMigration';
 
 export interface SharedTemplatePayload {
   v: number;
@@ -107,9 +108,9 @@ export function decodeShareLink(encoded: string): SharedTemplatePayload | null {
     const json = fromBase64Url(encoded);
     const parsed = JSON.parse(json);
 
-    // Structure validation: accept v1 (legacy) and v2 (designer)
+    // Structure validation: accept v1 (legacy), v2 (designer), and v3 (scenic folk)
     if (!parsed || typeof parsed !== 'object') return null;
-    if (parsed.v !== 1 && parsed.v !== 2) return null;
+    if (parsed.v !== 1 && parsed.v !== 2 && parsed.v !== 3) return null;
 
     const validTypes: QrType[] = ['url', 'text', 'email', 'phone', 'wifi'];
     if (!validTypes.includes(parsed.type)) return null;
@@ -120,7 +121,7 @@ export function decodeShareLink(encoded: string): SharedTemplatePayload | null {
     const validEcl = ['L', 'M', 'Q', 'H'];
     if (!validEcl.includes(parsed.style.ecl)) return null;
 
-    // Validate designer style fields (v2) or default them (v1)
+    // Validate designer style fields (v2/v3) or default them (v1)
     const rawModuleShape = parsed.style.moduleShape;
     const moduleShape: ModuleShape = VALID_MODULE_SHAPES.includes(rawModuleShape)
       ? rawModuleShape
@@ -141,11 +142,12 @@ export function decodeShareLink(encoded: string): SharedTemplatePayload | null {
       ? rawArt
       : 'none';
 
-    const gradientColor = parsed.style.gradientColor
+    const rawGradColor = parsed.style.gradientColor
       ? String(parsed.style.gradientColor).slice(0, 9)
       : undefined;
+    const gradientColor = rawGradColor ? migrateColor(rawGradColor) : undefined;
 
-    // Sanitize values
+    // Sanitize and migrate values to current folk palette
     const sanitized: SharedTemplatePayload = {
       v: parsed.v,
       name: parsed.name.slice(0, 60).replace(/[<>]/g, ''),
@@ -153,8 +155,8 @@ export function decodeShareLink(encoded: string): SharedTemplatePayload | null {
       inputs: parsed.inputs && typeof parsed.inputs === 'object' ? parsed.inputs : {},
       style: {
         size: Math.min(Math.max(Number(parsed.style.size) || 300, 128), 1024),
-        fgColor: String(parsed.style.fgColor || '#13504D').slice(0, 9),
-        bgColor: String(parsed.style.bgColor || '#FFFDF8').slice(0, 9),
+        fgColor: migrateColor(String(parsed.style.fgColor || '#1A3644').slice(0, 9)),
+        bgColor: migrateColor(String(parsed.style.bgColor || '#F6F1E8').slice(0, 9)),
         ecl: parsed.style.ecl,
         margin: Math.min(Math.max(Number(parsed.style.margin) || 4, 0), 8),
         moduleShape,

@@ -1,27 +1,44 @@
 import { RecentItem, QrType, QrInputsMap, QrStyle } from '../types';
 import { getPayloadSummary } from '../lib/payload';
+import { migrateQrStyle } from '../lib/paletteMigration';
 
-const RECENT_KEY = 'qraft:recent:v1';
+export const RECENT_KEY_V1 = 'qraft:recent:v1';
+export const RECENT_KEY_V2 = 'qraft:recent:v2';
 const MAX_RECENT_ITEMS = 12;
 
 export class RecentStore {
+  /**
+   * Retrieves all recent items, automatically migrating legacy v1 stores into v2 format
+   */
   public static getAll(): RecentItem[] {
     try {
-      const data = localStorage.getItem(RECENT_KEY);
-      if (!data) return [];
-      const parsed = JSON.parse(data);
-      if (!Array.isArray(parsed)) return [];
-      return parsed.map((item: any) => ({
-        ...item,
-        style: {
-          moduleShape: 'square',
-          finderShape: 'square',
-          gradientType: 'none',
-          artStyle: 'none',
-          paintedTexture: false,
-          ...(item.style || {}),
-        },
-      }));
+      // 1. Try reading v2 store
+      const v2Data = localStorage.getItem(RECENT_KEY_V2);
+      if (v2Data) {
+        const parsed = JSON.parse(v2Data);
+        if (Array.isArray(parsed)) {
+          return parsed.map((item: any) => ({
+            ...item,
+            style: migrateQrStyle(item.style),
+          }));
+        }
+      }
+
+      // 2. Check for legacy v1 store and migrate
+      const v1Data = localStorage.getItem(RECENT_KEY_V1);
+      if (v1Data) {
+        const parsedV1 = JSON.parse(v1Data);
+        if (Array.isArray(parsedV1)) {
+          const migrated: RecentItem[] = parsedV1.map((item: any) => ({
+            ...item,
+            style: migrateQrStyle(item.style),
+          }));
+          this.saveAll(migrated);
+          return migrated;
+        }
+      }
+
+      return [];
     } catch {
       return [];
     }
@@ -29,7 +46,7 @@ export class RecentStore {
 
   public static saveAll(items: RecentItem[]): void {
     try {
-      localStorage.setItem(RECENT_KEY, JSON.stringify(items.slice(0, MAX_RECENT_ITEMS)));
+      localStorage.setItem(RECENT_KEY_V2, JSON.stringify(items.slice(0, MAX_RECENT_ITEMS)));
     } catch (err) {
       console.error('Failed to save recent items', err);
     }
@@ -51,7 +68,7 @@ export class RecentStore {
       id: `rec_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       type,
       inputs: { ...inputs },
-      style: { ...style },
+      style: migrateQrStyle(style),
       payload: cleanPayload,
       summary: getPayloadSummary(type, inputs),
       timestamp: Date.now(),
@@ -69,7 +86,8 @@ export class RecentStore {
 
   public static clear(): void {
     try {
-      localStorage.removeItem(RECENT_KEY);
+      localStorage.removeItem(RECENT_KEY_V2);
+      localStorage.removeItem(RECENT_KEY_V1);
     } catch (err) {
       console.error('Failed to clear recent items', err);
     }

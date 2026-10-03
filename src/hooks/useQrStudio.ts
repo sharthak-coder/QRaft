@@ -10,7 +10,7 @@ import {
 import { generatePayload } from '../lib/payload';
 import { validateInputs } from '../lib/validation';
 import { evaluateReliability } from '../lib/reliability';
-import { PRESETS } from '../lib/presets';
+import { getPresetById } from '../lib/presets';
 
 const INITIAL_INPUTS: QrInputsMap = {
   url: { url: 'https://gdg.community.dev/srm-ist' },
@@ -31,14 +31,14 @@ const INITIAL_INPUTS: QrInputsMap = {
 
 const INITIAL_STYLE: QrStyle = {
   size: 320,
-  fgColor: '#13504D',
-  bgColor: '#FFFDF8',
+  fgColor: '#1A3644',
+  bgColor: '#F6F1E8',
   ecl: 'H',
   margin: 4,
   moduleShape: 'connected',
   finderShape: 'rounded',
   gradientType: 'linear',
-  gradientColor: '#2F7A72',
+  gradientColor: '#2D5A3E',
   artStyle: 'none',
   paintedTexture: false,
 };
@@ -47,7 +47,7 @@ export function useQrStudio() {
   const [activeType, setActiveType] = useState<QrType>('url');
   const [inputs, setInputs] = useState<QrInputsMap>(INITIAL_INPUTS);
   const [style, setStyle] = useState<QrStyle>(INITIAL_STYLE);
-  const [activePresetId, setActivePresetId] = useState<string | null>('peacock');
+  const [activePresetId, setActivePresetId] = useState<string | null>('indigo');
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [verification, setVerification] = useState<ScanVerificationResult | null>(null);
 
@@ -84,12 +84,12 @@ export function useQrStudio() {
     setVerification(null);
   }, []);
 
-  // Apply a curated preset
+  // Apply a curated preset (resolves current and legacy preset IDs)
   const applyPreset = useCallback((presetId: string) => {
-    const found = PRESETS.find((p) => p.id === presetId);
+    const found = getPresetById(presetId);
     if (found) {
       setStyle({ ...found.style });
-      setActivePresetId(presetId);
+      setActivePresetId(found.id);
       setVerification(null);
     }
   }, []);
