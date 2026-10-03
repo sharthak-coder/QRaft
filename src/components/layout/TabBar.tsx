@@ -13,7 +13,7 @@ export interface TabItem {
 
 export const WORKSPACE_TABS: TabItem[] = [
   { id: 'generator', label: 'QR Generator', icon: QrCode },
-  { id: '3d', label: '3D QR', icon: Box, badge: 'WebGL' },
+  { id: '3d', label: 'Scenic 3D World', icon: Box, badge: 'Voxel Diorama' },
   { id: 'templates', label: 'My Templates', icon: Bookmark },
   { id: 'community', label: 'Community', icon: Users },
   { id: 'recent', label: 'Recent', icon: Clock },
