@@ -3,14 +3,28 @@
 @tailwind utilities;
 
 :root {
-  --color-saffron: #F79454;
-  --color-vermilion: #C54845;
-  --color-peacock-deep: #13504D;
-  --color-peacock: #2F7A72;
-  --color-sage: #A5B596;
-  --color-paper: #FFFDF8;
-  --color-paper-2: #F6F0E4;
-  --color-ink: #1C2B29;
+  --color-indigo-ink: #1A3644;
+  --color-haldi: #D99B26;
+  --color-sindoor: #A62B2B;
+  --color-leaf: #2D5A3E;
+  --color-rice: #F6F1E8;
+
+  /* Derived natural pigment tints & shades */
+  --color-rice-panel: color-mix(in srgb, var(--color-rice) 94%, var(--color-indigo-ink) 6%);
+  --color-rice-card: color-mix(in srgb, var(--color-rice) 90%, var(--color-indigo-ink) 10%);
+  --color-rice-border: color-mix(in srgb, var(--color-rice) 82%, var(--color-indigo-ink) 18%);
+  --color-indigo-soft: color-mix(in srgb, var(--color-indigo-ink) 75%, var(--color-rice) 25%);
+  --color-indigo-muted: color-mix(in srgb, var(--color-indigo-ink) 55%, var(--color-rice) 45%);
+
+  /* Backward compatibility variables */
+  --color-paper: var(--color-rice);
+  --color-paper-2: var(--color-rice-panel);
+  --color-ink: var(--color-indigo-ink);
+  --color-saffron: var(--color-haldi);
+  --color-vermilion: var(--color-sindoor);
+  --color-peacock-deep: var(--color-indigo-ink);
+  --color-peacock: var(--color-leaf);
+  --color-sage: var(--color-leaf);
 }
 
 @layer base {
@@ -20,50 +34,90 @@
   }
 
   body {
-    @apply bg-paper text-ink font-sans antialiased overflow-x-hidden;
+    background-color: var(--color-rice);
+    color: var(--color-indigo-ink);
+    font-family: 'Mukta', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    background-image: var(--bg-paper-tile, radial-gradient(rgba(26, 54, 68, 0.04) 1px, transparent 1px));
+    background-repeat: repeat;
+    overflow-x: hidden;
+  }
+
+  /* Form inputs & buttons: readable sizing (16px minimum prevents mobile zoom) */
+  input, select, textarea, button {
+    font-family: 'Mukta', system-ui, sans-serif;
+    font-size: 16px;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-tight text-peacock-deep;
+    font-family: 'Yatra One', 'Fraunces', Georgia, serif;
+    letter-spacing: -0.015em;
+    color: var(--color-indigo-ink);
   }
+}
+
+/* Procedural grain overlay (rice-powder & vermilion flecks) */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.04;
+  background-image: var(--bg-grain-tile, none);
+  background-repeat: repeat;
 }
 
 /* Glassmorphism & Surface utilities */
 .glass-panel {
-  background: rgba(255, 253, 248, 0.88);
+  background: rgba(246, 241, 232, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(232, 222, 200, 0.85);
+  border: 1px solid rgba(221, 210, 184, 0.85);
 }
 
 .glass-dropdown {
-  background: rgba(246, 240, 228, 0.96);
+  background: rgba(239, 232, 217, 0.98);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(232, 222, 200, 0.9);
+  border: 1px solid rgba(221, 210, 184, 0.9);
 }
 
 /* Subtle Rangoli Dotted Grid Background */
 .bg-dot-pattern {
-  background-image: radial-gradient(rgba(19, 80, 77, 0.08) 1.2px, transparent 1.2px);
+  background-image: radial-gradient(rgba(26, 54, 68, 0.08) 1.2px, transparent 1.2px);
   background-size: 24px 24px;
 }
 
-/* Warm Madhubani Shadows */
+/* Folk Natural Pigment Shadows */
+.shadow-haldi-glow {
+  box-shadow: 0 10px 25px -5px rgba(217, 155, 38, 0.3), 0 8px 10px -6px rgba(217, 155, 38, 0.2);
+}
 .shadow-saffron-glow {
-  box-shadow: 0 10px 25px -5px rgba(247, 148, 84, 0.3), 0 8px 10px -6px rgba(247, 148, 84, 0.2);
+  box-shadow: 0 10px 25px -5px rgba(217, 155, 38, 0.3), 0 8px 10px -6px rgba(217, 155, 38, 0.2);
+}
+
+.shadow-sindoor-glow {
+  box-shadow: 0 10px 25px -5px rgba(166, 43, 43, 0.3), 0 8px 10px -6px rgba(166, 43, 43, 0.2);
+}
+.shadow-vermilion-glow {
+  box-shadow: 0 10px 25px -5px rgba(166, 43, 43, 0.3), 0 8px 10px -6px rgba(166, 43, 43, 0.2);
 }
 
 .shadow-royal-glow {
-  box-shadow: 0 10px 25px -5px rgba(247, 148, 84, 0.3), 0 8px 10px -6px rgba(247, 148, 84, 0.2);
+  box-shadow: 0 10px 25px -5px rgba(217, 155, 38, 0.3), 0 8px 10px -6px rgba(217, 155, 38, 0.2);
 }
 
+.shadow-folk-card {
+  box-shadow: 0 4px 20px -2px rgba(26, 54, 68, 0.06), 0 2px 6px -1px rgba(26, 54, 68, 0.03);
+}
 .shadow-peacock-card {
-  box-shadow: 0 4px 20px -2px rgba(19, 80, 77, 0.06), 0 2px 6px -1px rgba(19, 80, 77, 0.03);
+  box-shadow: 0 4px 20px -2px rgba(26, 54, 68, 0.06), 0 2px 6px -1px rgba(26, 54, 68, 0.03);
 }
 
 .shadow-google-card {
-  box-shadow: 0 4px 20px -2px rgba(19, 80, 77, 0.06), 0 2px 6px -1px rgba(19, 80, 77, 0.03);
+  box-shadow: 0 4px 20px -2px rgba(26, 54, 68, 0.06), 0 2px 6px -1px rgba(26, 54, 68, 0.03);
 }
 
 /* Custom Scrollbar in handmade paper tones */
@@ -72,14 +126,14 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #F6F0E4;
+  background: #F6F1E8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D5C9B3;
+  background: #DDD2B8;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B8A88E;
+  background: #C4B698;
 }
 
 /* Accessibility: Respect Reduced Motion Preferences */
