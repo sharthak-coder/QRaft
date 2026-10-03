@@ -5,13 +5,17 @@ import { FishPair } from '../../art/FishPair';
 import { Peacock } from '../../art/Peacock';
 import { Lotus } from '../../art/Lotus';
 import { Sun } from '../../art/Sun';
+import { Moon } from '../../art/Moon';
+import { Kadamba } from '../../art/Kadamba';
 import { LeafVine } from '../../art/LeafVine';
 import { MadhubaniPatternDefs } from '../../art/PatternFill';
+import { useCalmMode } from '../../hooks/useCalmMode';
 
 export const MadhubaniBackground: React.FC = () => {
   const location = useLocation();
   const isWelcome = location.pathname === '/';
   const shouldReduceMotion = useReducedMotion();
+  const { isCalm } = useCalmMode();
 
   // Tab visibility check to pause animations when hidden
   const [isTabVisible, setIsTabVisible] = useState(true);
@@ -23,12 +27,15 @@ export const MadhubaniBackground: React.FC = () => {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
-  // Subtle cursor parallax on desktop
+  // Cursor parallax on desktop (disabled when Calm Mode or Reduced Motion is active)
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (shouldReduceMotion) return;
+    if (shouldReduceMotion || isCalm) {
+      setMouseOffset({ x: 0, y: 0 });
+      return;
+    }
 
     const handleMouseMove = (e: MouseEvent) => {
       if (rafRef.current) return;
@@ -45,30 +52,30 @@ export const MadhubaniBackground: React.FC = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [shouldReduceMotion]);
+  }, [shouldReduceMotion, isCalm]);
 
-  // Motion config active only when tab is visible and reduced motion is off
-  const enableMotion = isTabVisible && !shouldReduceMotion;
+  // Motion config active only when tab is visible and reduced motion / calm mode are off
+  const enableMotion = isTabVisible && !shouldReduceMotion && !isCalm;
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-paper"
+      className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-rice"
       aria-hidden="true"
     >
       {/* Reusable SVG Pattern Defs */}
-      <MadhubaniPatternDefs strokeColor="#13504D" />
+      <MadhubaniPatternDefs strokeColor="#1A3644" />
 
       {/* Faint Rangoli Dot Grid */}
-      <div className="absolute inset-0 bg-dot-pattern opacity-60" />
+      <div className="absolute inset-0 bg-dot-pattern opacity-40" />
 
       {/* Asymmetrical Motifs with High Negative Space */}
       {isWelcome ? (
-        // WELCOME PAGE: Richer artistic presentation with stroke-draw entry
+        // WELCOME PAGE: Richer artistic presentation
         <>
           {/* Top-Right: Proud Peacock */}
           <motion.div
-            className="absolute -top-10 -right-12 md:right-4 w-72 md:w-96 opacity-[0.09] text-peacock-deep"
-            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95 }}
+            className="absolute -top-10 -right-12 md:right-4 w-72 md:w-96 opacity-[0.09] text-indigo-ink"
+            initial={shouldReduceMotion || isCalm ? false : { opacity: 0, scale: 0.95 }}
             animate={
               enableMotion
                 ? {
@@ -77,20 +84,20 @@ export const MadhubaniBackground: React.FC = () => {
                     x: mouseOffset.x * 0.8,
                     y: [0, -10, 0],
                   }
-                : { opacity: 0.08 }
+                : { opacity: 0.07 }
             }
             transition={{
               y: { duration: 18, repeat: Infinity, ease: 'easeInOut' },
               opacity: { duration: 1.2 },
             }}
           >
-            <Peacock size="100%" strokeColor="#13504D" fillColor="#2F7A72" accentColor="#F79454" secondaryFill="#C54845" />
+            <Peacock size="100%" strokeColor="#1A3644" fillColor="#2D5A3E" accentColor="#D99B26" secondaryFill="#A62B2B" />
           </motion.div>
 
           {/* Top-Left: Warm Radiating Sun */}
           <motion.div
             className="absolute -top-12 -left-12 md:left-6 w-64 md:w-80 opacity-[0.08]"
-            initial={shouldReduceMotion ? false : { opacity: 0, rotate: -15 }}
+            initial={shouldReduceMotion || isCalm ? false : { opacity: 0, rotate: -15 }}
             animate={
               enableMotion
                 ? {
@@ -99,7 +106,7 @@ export const MadhubaniBackground: React.FC = () => {
                     y: [0, 8, 0],
                     rotate: [0, 6, 0],
                   }
-                : { opacity: 0.07 }
+                : { opacity: 0.06 }
             }
             transition={{
               y: { duration: 22, repeat: Infinity, ease: 'easeInOut' },
@@ -107,13 +114,13 @@ export const MadhubaniBackground: React.FC = () => {
               opacity: { duration: 1.4 },
             }}
           >
-            <Sun size="100%" strokeColor="#13504D" fillColor="#F79454" accentColor="#C54845" secondaryFill="#A5B596" />
+            <Sun size="100%" strokeColor="#1A3644" fillColor="#D99B26" accentColor="#A62B2B" secondaryFill="#2D5A3E" />
           </motion.div>
 
           {/* Bottom-Left: Harmonious Fish Pair */}
           <motion.div
             className="absolute -bottom-16 -left-16 md:left-10 w-80 md:w-[28rem] opacity-[0.09]"
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
+            initial={shouldReduceMotion || isCalm ? false : { opacity: 0, y: 30 }}
             animate={
               enableMotion
                 ? {
@@ -121,20 +128,20 @@ export const MadhubaniBackground: React.FC = () => {
                     x: mouseOffset.x * 0.5,
                     y: [0, -12, 0],
                   }
-                : { opacity: 0.08 }
+                : { opacity: 0.07 }
             }
             transition={{
               y: { duration: 20, repeat: Infinity, ease: 'easeInOut' },
               opacity: { duration: 1.5 },
             }}
           >
-            <FishPair size="100%" strokeColor="#13504D" fillColor="#F79454" accentColor="#C54845" secondaryFill="#A5B596" />
+            <FishPair size="100%" strokeColor="#1A3644" fillColor="#D99B26" accentColor="#A62B2B" secondaryFill="#2D5A3E" />
           </motion.div>
 
           {/* Bottom-Right: Blooming Sacred Lotus */}
           <motion.div
             className="absolute bottom-6 right-8 md:right-24 w-60 md:w-72 opacity-[0.08]"
-            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.9 }}
+            initial={shouldReduceMotion || isCalm ? false : { opacity: 0, scale: 0.9 }}
             animate={
               enableMotion
                 ? {
@@ -142,73 +149,38 @@ export const MadhubaniBackground: React.FC = () => {
                     x: -mouseOffset.x * 0.7,
                     y: [0, 10, 0],
                   }
-                : { opacity: 0.07 }
+                : { opacity: 0.06 }
             }
             transition={{
               y: { duration: 16, repeat: Infinity, ease: 'easeInOut' },
               opacity: { duration: 1.6 },
             }}
           >
-            <Lotus size="100%" strokeColor="#13504D" fillColor="#C54845" accentColor="#F79454" secondaryFill="#A5B596" />
+            <Lotus size="100%" strokeColor="#1A3644" fillColor="#A62B2B" accentColor="#D99B26" />
           </motion.div>
 
-          {/* Left Edge: Swaying Vine */}
-          <motion.div
-            className="absolute top-1/3 -left-4 hidden lg:block opacity-[0.07]"
-            animate={
-              enableMotion
-                ? {
-                    rotate: [-1.5, 1.5, -1.5],
-                    y: [0, -6, 0],
-                  }
-                : undefined
-            }
-            transition={{
-              duration: 14,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          >
-            <LeafVine orientation="vertical" size={280} strokeColor="#13504D" fillColor="#A5B596" accentColor="#F79454" />
-          </motion.div>
+          {/* Floating Sacred Kadamba Tree Motif */}
+          <div className="absolute top-1/2 left-4 w-32 opacity-[0.05] hidden lg:block">
+            <Kadamba size="100%" strokeColor="#1A3644" fillColor="#2D5A3E" accentColor="#D99B26" secondaryFill="#A62B2B" />
+          </div>
+
+          {/* Gentle Floating Chandra / Moon Motif */}
+          <div className="absolute top-1/3 right-8 w-24 opacity-[0.06] hidden lg:block">
+            <Moon size="100%" strokeColor="#1A3644" fillColor="#D99B26" accentColor="#A62B2B" />
+          </div>
         </>
       ) : (
-        // WORKSPACE / APP PAGES: Ultra-minimal peripheral motifs to keep tools 100% readable
+        // WORKSPACE TABS (Calm Workspace Rule - Section 2.4):
+        // Quieter, lower opacity, fewer elements, behind solid rice panels so no pattern is ever behind small text
         <>
-          {/* Subtle Top-Right Sun Fragment */}
-          <motion.div
-            className="absolute -top-20 -right-20 w-80 opacity-[0.04]"
-            animate={
-              enableMotion
-                ? {
-                    rotate: [0, 10, 0],
-                  }
-                : undefined
-            }
-            transition={{ duration: 40, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <Sun size="100%" strokeColor="#13504D" fillColor="#F79454" />
-          </motion.div>
-
-          {/* Subtle Bottom-Left Fish Fragment */}
-          <motion.div
-            className="absolute -bottom-24 -left-24 w-96 opacity-[0.04]"
-            animate={
-              enableMotion
-                ? {
-                    x: [0, 10, 0],
-                    y: [0, -8, 0],
-                  }
-                : undefined
-            }
-            transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <FishPair size="100%" strokeColor="#13504D" fillColor="#F79454" />
-          </motion.div>
-
-          {/* Subtle Peripheral Lotus in Bottom Corner */}
-          <div className="absolute -bottom-10 -right-10 w-64 opacity-[0.035]">
-            <Lotus size="100%" strokeColor="#13504D" fillColor="#C54845" />
+          <div className="absolute -top-16 -right-16 w-80 opacity-[0.035] pointer-events-none">
+            <Peacock size="100%" strokeColor="#1A3644" fillColor="#2D5A3E" accentColor="#D99B26" secondaryFill="#A62B2B" />
+          </div>
+          <div className="absolute -bottom-20 -left-20 w-96 opacity-[0.035] pointer-events-none">
+            <FishPair size="100%" strokeColor="#1A3644" fillColor="#D99B26" accentColor="#A62B2B" secondaryFill="#2D5A3E" />
+          </div>
+          <div className="absolute top-1/2 -right-10 w-48 opacity-[0.025] pointer-events-none">
+            <LeafVine size="100%" strokeColor="#1A3644" fillColor="#2D5A3E" />
           </div>
         </>
       )}

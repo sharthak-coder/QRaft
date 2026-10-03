@@ -62,8 +62,8 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
         ref={containerRef}
         role="tablist"
         aria-label="Workspace feature tabs"
-        className="flex items-center gap-1.5 p-1.5 bg-paper-2/95 backdrop-blur-md rounded-2xl border-2 border-peacock-deep/20 shadow-card max-w-full overflow-x-auto no-scrollbar scroll-smooth snap-x"
-        style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+        className="flex items-center gap-1.5 p-1.5 bg-rice-panel/95 backdrop-blur-md rounded-2xl border-2 border-indigo-ink/20 shadow-folk-card max-w-full overflow-x-auto no-scrollbar scroll-smooth snap-x"
+        style={{ outline: '1px solid rgba(26, 54, 68, 0.1)', outlineOffset: '2px' }}
       >
         {WORKSPACE_TABS.map((tab, idx) => {
           const isActive = activeTab === tab.id;
@@ -80,34 +80,49 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
               tabIndex={isActive ? 0 : -1}
               onClick={() => onTabChange(tab.id)}
               onKeyDown={(e) => handleKeyDown(e, idx)}
-              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-heading font-bold transition-colors snap-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-peacock-deep ${
+              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-heading font-bold transition-colors duration-200 snap-center flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-ink ${
                 isActive
-                  ? 'text-white'
-                  : 'text-ink/75 hover:text-peacock-deep hover:bg-paper'
+                  ? 'text-indigo-ink font-extrabold'
+                  : 'text-indigo-ink/75 hover:text-indigo-ink hover:bg-rice'
               }`}
             >
-              {/* Sliding Pill Indicator with Lotus Bud Motif & Hand-Drawn Underline */}
+              {/* Sliding Haldi Tag Pill with Tiny Travelling Lotus Bud */}
               {isActive && (
                 <motion.div
                   layoutId="activeTabPill"
-                  className="absolute inset-0 bg-peacock-deep rounded-xl shadow-peacock-glow flex flex-col justify-end overflow-hidden"
+                  className="absolute inset-0 bg-haldi rounded-xl shadow-haldi-glow border border-indigo-ink flex flex-col justify-between overflow-hidden"
                   transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                 >
-                  {/* Subtle hand-drawn wavy underline */}
-                  <span className="w-full h-[2.5px] bg-saffron opacity-90 block" />
+                  {/* Top Travelling Lotus Bud Ornament */}
+                  <div className="w-full flex justify-center -mt-0.5">
+                    <svg className="w-3.5 h-2.5" viewBox="0 0 16 10" fill="none">
+                      <path d="M8 1 C6 3 5 6 5 8 C6.5 9 9.5 9 11 8 C11 6 10 3 8 1 Z" fill="#A62B2B" stroke="#1A3644" strokeWidth="0.8" />
+                      <circle cx="8" cy="8" r="1" fill="#FFFFFF" />
+                    </svg>
+                  </div>
+
+                  {/* Tribal zig-zag lower border trim */}
+                  <span
+                    className="w-full h-1 block opacity-30"
+                    style={{
+                      backgroundImage: 'repeating-linear-gradient(45deg, #1A3644 0, #1A3644 1.5px, transparent 1.5px, transparent 3px)',
+                      backgroundSize: '4px 3px',
+                      backgroundRepeat: 'repeat-x',
+                    }}
+                  />
                 </motion.div>
               )}
 
               {/* Tab Content */}
               <span className="relative z-10 flex items-center gap-2">
-                <Icon className={`w-4 h-4 transition-transform ${isActive ? 'scale-110 text-saffron' : ''}`} />
+                <Icon className={`w-4 h-4 transition-transform ${isActive ? 'scale-110 text-indigo-ink' : 'text-indigo-ink/70'}`} />
                 <span>{tab.label}</span>
                 {tab.badge && (
                   <span
                     className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
                       isActive
-                        ? 'bg-saffron text-ink'
-                        : 'bg-peacock/15 text-peacock-deep'
+                        ? 'bg-indigo-ink text-rice'
+                        : 'bg-leaf/20 text-leaf'
                     }`}
                   >
                     {tab.badge}

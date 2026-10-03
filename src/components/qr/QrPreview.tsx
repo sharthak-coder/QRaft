@@ -15,7 +15,7 @@ import {
 import { RecentStore } from '../../services/recent';
 import { TemplateStore } from '../../services/templates';
 import { useAuth } from '../../hooks/useAuth';
-import { BorderFrame } from '../../art/BorderFrame';
+import { JharokhaFrame } from '../../art/JharokhaFrame';
 import { Lotus } from '../../art/Lotus';
 import {
   Download,
@@ -117,12 +117,12 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
   const handleMakeItSafer = () => {
     if (!onUpdateStyle) return;
     onUpdateStyle({
-      fgColor: '#13504D',
-      bgColor: '#FFFDF8',
+      fgColor: '#1A3644',
+      bgColor: '#F6F1E8',
       ecl: 'H',
       margin: 4,
-      moduleShape: 'rounded',
-      finderShape: 'rounded',
+      moduleShape: 'square',
+      finderShape: 'square',
       gradientType: 'none',
       artStyle: 'none',
       paintedTexture: false,
@@ -137,26 +137,27 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
     if (!exportWithFrame) return canvasRef.current;
 
     const src = canvasRef.current;
-    const framePad = 48; // Quiet padding around QR
+    const framePad = 48; // Quiet padding around QR ensuring quiet zone is untouched
     const offscreen = document.createElement('canvas');
     offscreen.width = src.width + framePad * 2;
     offscreen.height = src.height + framePad * 2;
     const ctx = offscreen.getContext('2d');
     if (!ctx) return src;
 
-    // Draw background
-    ctx.fillStyle = '#FFFDF8';
+    // Draw handmade rice paper background
+    ctx.fillStyle = '#F6F1E8';
     ctx.fillRect(0, 0, offscreen.width, offscreen.height);
 
-    // Draw outer double border in Madhubani palette
-    ctx.strokeStyle = '#13504D';
+    // Draw outer double border in Madhubani indigo-ink & haldi
+    ctx.strokeStyle = '#1A3644';
     ctx.lineWidth = 3;
     ctx.strokeRect(12, 12, offscreen.width - 24, offscreen.height - 24);
 
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = '#D99B26';
+    ctx.lineWidth = 1.5;
     ctx.strokeRect(18, 18, offscreen.width - 36, offscreen.height - 36);
 
-    // Draw source QR code in center
+    // Draw source QR code in center (quiet zone fully preserved)
     ctx.drawImage(src, framePad, framePad);
 
     return offscreen;
@@ -216,45 +217,46 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
     <div className="w-full space-y-4">
       {/* 1. Main Canvas Preview Card */}
       <div
-        className="bg-paper-2/95 p-6 rounded-3xl border border-paper-border shadow-card flex flex-col items-center text-center relative overflow-hidden"
-        style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+        className="bg-rice p-5 sm:p-6 rounded-3xl border-2 border-indigo-ink/20 shadow-folk-card flex flex-col items-center text-center relative overflow-hidden"
+        style={{ outline: '1px solid rgba(26, 54, 68, 0.1)', outlineOffset: '2px' }}
       >
         {/* Header Label */}
-        <div className="flex items-center justify-between w-full mb-4">
+        <div className="flex items-center justify-between w-full mb-3">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-vermilion animate-pulse" />
-            <h3 className="text-xs font-heading font-bold text-peacock-deep uppercase tracking-wider">
+            <span className="w-2.5 h-2.5 rounded-full bg-sindoor animate-pulse" />
+            <h3 className="text-xs font-heading font-bold text-indigo-ink uppercase tracking-wider">
               Real-Time Preview
             </h3>
           </div>
-          <span className="text-[11px] font-mono text-peacock-deep bg-paper px-2.5 py-0.5 rounded-full border border-paper-border">
+          <span className="text-[11px] font-mono text-indigo-ink bg-rice-panel px-2.5 py-0.5 rounded-full border border-rice-border">
             {style.size}&times;{style.size}px &bull; ECL {style.ecl}
           </span>
         </div>
 
-        {/* Live Canvas with Madhubani Frame */}
-        <div className="relative w-full aspect-square max-w-[340px] flex items-center justify-center p-3 rounded-2xl bg-paper/60 border border-paper-border shadow-inner overflow-hidden mb-3">
+        {/* Live Canvas with Jharokha Folk Frame (Section 2.2) */}
+        <div className="relative w-full max-w-[340px] flex items-center justify-center p-1 mb-2">
           {isValid && payload.trim() ? (
-            <BorderFrame
-              className="p-3 bg-paper shadow-sm inline-block mx-auto"
-              cornerSize={24}
-              strokeColor="#13504D"
-              fillColor="#F79454"
-              accentColor="#C54845"
+            <JharokhaFrame
+              className="w-full shadow-folk-card"
+              strokeColor="#1A3644"
+              accentColor="#A62B2B"
+              highlightColor="#D99B26"
             >
-              <canvas
-                ref={canvasRef}
-                className="max-w-full max-h-full rounded-lg transition-all"
-                style={{ width: `${Math.min(style.size, 270)}px`, height: `${Math.min(style.size, 270)}px` }}
-              />
-            </BorderFrame>
+              <div className="relative p-2 bg-rice flex items-center justify-center">
+                <canvas
+                  ref={canvasRef}
+                  className="max-w-full max-h-full rounded-lg transition-all"
+                  style={{ width: `${Math.min(style.size, 250)}px`, height: `${Math.min(style.size, 250)}px` }}
+                />
+              </div>
+            </JharokhaFrame>
           ) : (
-            <div className="flex flex-col items-center justify-center p-6 text-center text-ink/70">
-              <div className="w-12 h-12 rounded-2xl bg-vermilion-50 text-vermilion flex items-center justify-center mb-3 border border-vermilion/20">
+            <div className="flex flex-col items-center justify-center p-6 text-center text-indigo-ink/70">
+              <div className="w-12 h-12 rounded-2xl bg-sindoor/10 text-sindoor flex items-center justify-center mb-3 border border-sindoor/20">
                 <AlertTriangle className="w-6 h-6" />
               </div>
-              <p className="text-xs font-heading font-bold text-peacock-deep">Incomplete Payload Data</p>
-              <p className="text-[11px] text-ink/65 mt-1 max-w-[200px]">
+              <p className="text-xs font-heading font-bold text-indigo-ink">Incomplete Payload Data</p>
+              <p className="text-[11px] text-indigo-ink/65 mt-1 max-w-[200px]">
                 {Object.values(errors)[0] || 'Provide required fields on the left to render your QR code.'}
               </p>
             </div>
@@ -263,12 +265,12 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
 
         {/* Frame Export Toggle */}
         <div className="w-full flex items-center justify-between px-1 mb-2">
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-peacock-deep">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-indigo-ink">
             <input
               type="checkbox"
               checked={exportWithFrame}
               onChange={(e) => setExportWithFrame(e.target.checked)}
-              className="rounded border-paper-border text-peacock-deep focus:ring-peacock-deep"
+              className="rounded border-rice-border text-sindoor focus:ring-haldi"
             />
             <span>Export with decorative Madhubani frame</span>
           </label>
@@ -279,15 +281,15 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
           <div
             className={`w-full p-2.5 rounded-xl border text-xs font-medium flex items-center justify-between gap-2 mb-2 ${
               verification.match
-                ? 'bg-peacock/15 border-peacock/30 text-peacock-deep'
-                : 'bg-vermilion-50 border-vermilion/30 text-vermilion'
+                ? 'bg-leaf/15 border-leaf/30 text-leaf'
+                : 'bg-sindoor/15 border-sindoor/30 text-sindoor'
             }`}
           >
             <div className="flex items-center gap-2 text-left">
               {verification.match ? (
-                <Check className="w-4 h-4 text-peacock flex-shrink-0" />
+                <Check className="w-4 h-4 text-leaf flex-shrink-0" />
               ) : (
-                <AlertTriangle className="w-4 h-4 text-vermilion flex-shrink-0" />
+                <AlertTriangle className="w-4 h-4 text-sindoor flex-shrink-0" />
               )}
               <span className="line-clamp-2">{verification.message}</span>
             </div>
@@ -297,7 +299,7 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
               <button
                 type="button"
                 onClick={handleMakeItSafer}
-                className="flex-shrink-0 px-2.5 py-1 bg-vermilion text-white text-[11px] font-heading font-bold rounded-lg hover:bg-vermilion-500 shadow-sm flex items-center gap-1 transition-all"
+                className="flex-shrink-0 px-2.5 py-1 bg-sindoor text-rice text-[11px] font-heading font-bold rounded-lg hover:bg-sindoor-600 shadow-sm flex items-center gap-1 transition-all"
                 title="Automatically fix contrast, shapes, and error correction for 100% scan reliability"
               >
                 <Wand2 className="w-3 h-3" />
@@ -309,58 +311,58 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
 
         {/* Scannability Warning & Override */}
         {hasScannabilityIssue && isValid && (
-          <div className="w-full p-2.5 bg-saffron-50 border border-saffron-300 rounded-xl mb-2 text-left">
+          <div className="w-full p-2.5 bg-haldi/20 border border-haldi/50 rounded-xl mb-2 text-left">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-peacock-deep">
+              <span className="text-[11px] font-semibold text-indigo-ink">
                 Scannability check failed: camera decode was not verified.
               </span>
               {onUpdateStyle && (
                 <button
                   type="button"
                   onClick={handleMakeItSafer}
-                  className="text-[11px] font-bold text-vermilion underline hover:text-vermilion-500"
+                  className="text-[11px] font-bold text-sindoor underline hover:text-sindoor-600"
                 >
                   Auto-remedy
                 </button>
               )}
             </div>
-            <label className="flex items-center gap-2 cursor-pointer mt-1.5 pt-1.5 border-t border-saffron-200">
+            <label className="flex items-center gap-2 cursor-pointer mt-1.5 pt-1.5 border-t border-haldi/30">
               <input
                 type="checkbox"
                 checked={downloadAnyway}
                 onChange={(e) => setDownloadAnyway(e.target.checked)}
-                className="rounded border-paper-border text-peacock-deep focus:ring-peacock-deep"
+                className="rounded border-rice-border text-sindoor focus:ring-haldi"
               />
-              <span className="text-[11px] text-ink font-medium">
+              <span className="text-[11px] text-indigo-ink font-medium">
                 I understand this design may be hard to scan; allow download anyway
               </span>
             </label>
           </div>
         )}
 
-        {/* Action Buttons Toolbar */}
+        {/* Action Buttons Toolbar (Section 2.3) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full mt-2">
-          {/* Download PNG */}
+          {/* Download PNG (Primary: sindoor fill, FolkTag haldi border, rice text, haldi glow) */}
           <button
             type="button"
             onClick={handleDownloadPng}
             disabled={!canProceedWithDownload}
-            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-vermilion hover:bg-vermilion-500 text-white font-heading font-bold text-xs shadow-sm shadow-vermilion-glow hover:shadow-saffron-glow transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed border border-white/30 group"
+            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-sindoor hover:bg-sindoor-600 text-rice font-heading font-bold text-xs shadow-sm shadow-haldi-glow hover:shadow-md transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed border-2 border-haldi group focus:outline-none focus:ring-2 focus:ring-haldi"
             title="Download PNG (matches preview canvas exactly)"
           >
             <Download className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform" />
             <span>PNG</span>
           </button>
 
-          {/* Download SVG */}
+          {/* Download SVG (Secondary: indigo-ink outline with tag trim) */}
           <button
             type="button"
             onClick={handleDownloadSvg}
             disabled={!canProceedWithDownload}
-            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-paper border border-peacock/30 hover:bg-paper-2 text-peacock-deep font-heading font-bold text-xs shadow-sm transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-rice border-2 border-indigo-ink hover:bg-rice-panel text-indigo-ink font-heading font-bold text-xs shadow-sm transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-indigo-ink"
             title="Download Vector SVG matching designer styles"
           >
-            <FileCode className="w-3.5 h-3.5 text-peacock-deep" />
+            <FileCode className="w-3.5 h-3.5 text-indigo-ink" />
             <span>SVG</span>
           </button>
 
@@ -369,10 +371,10 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
             type="button"
             onClick={handleCopyClipboard}
             disabled={!canProceedWithDownload}
-            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-paper border border-paper-border hover:bg-paper-2 text-ink font-heading font-bold text-xs shadow-sm transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-rice border-2 border-indigo-ink hover:bg-rice-panel text-indigo-ink font-heading font-bold text-xs shadow-sm transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-indigo-ink"
             title="Copy image to clipboard"
           >
-            <Copy className="w-3.5 h-3.5 text-ink/65" />
+            <Copy className="w-3.5 h-3.5 text-indigo-ink" />
             <span>Copy</span>
           </button>
 
@@ -381,13 +383,13 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
             type="button"
             onClick={handleVerifyScan}
             disabled={!isValid || isVerifying}
-            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-peacock/10 border border-peacock/25 text-peacock-deep hover:bg-peacock/20 font-heading font-bold text-xs shadow-sm transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-rice border-2 border-indigo-ink hover:bg-rice-panel text-indigo-ink font-heading font-bold text-xs shadow-sm transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-indigo-ink"
             title="Simulate optical camera decode with jsQR"
           >
             {isVerifying ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-peacock-deep" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-ink" />
             ) : (
-              <Scan className="w-3.5 h-3.5 text-peacock-deep" />
+              <Scan className="w-3.5 h-3.5 text-indigo-ink" />
             )}
             <span>Verify</span>
           </button>
@@ -395,31 +397,31 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
 
         {/* Microinteraction Toast Messages with Lotus Icon */}
         {copyFeedback && (
-          <div className="mt-3 p-2 bg-saffron-50 border border-saffron-300 rounded-xl text-xs font-semibold text-peacock-deep flex items-center justify-center gap-2">
-            <Lotus size={16} strokeColor="#13504D" fillColor="#F79454" accentColor="#C54845" />
+          <div className="mt-3 p-2 bg-haldi/20 border border-haldi/60 rounded-xl text-xs font-semibold text-indigo-ink flex items-center justify-center gap-2">
+            <Lotus size={16} strokeColor="#1A3644" fillColor="#D99B26" accentColor="#A62B2B" />
             <span>{copyFeedback}</span>
           </div>
         )}
         {saveFeedback && (
-          <div className="mt-3 p-2 bg-peacock/10 border border-peacock/25 rounded-xl text-xs font-semibold text-peacock-deep flex items-center justify-center gap-2">
-            <Lotus size={16} strokeColor="#13504D" fillColor="#A5B596" accentColor="#2F7A72" />
+          <div className="mt-3 p-2 bg-leaf/15 border border-leaf/30 rounded-xl text-xs font-semibold text-leaf flex items-center justify-center gap-2">
+            <Lotus size={16} strokeColor="#1A3644" fillColor="#2D5A3E" accentColor="#D99B26" />
             <span>{saveFeedback}</span>
           </div>
         )}
 
         {/* Save as Template */}
-        <div className="w-full mt-3 pt-3 border-t border-paper-border flex items-center justify-between">
+        <div className="w-full mt-3 pt-3 border-t border-rice-border flex items-center justify-between">
           <button
             type="button"
             onClick={handleSaveTemplate}
             disabled={!isValid}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-peacock-deep hover:text-vermilion transition-colors disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-ink hover:text-sindoor transition-colors disabled:opacity-40"
           >
             <Bookmark className="w-3.5 h-3.5" />
             <span>Save as Template</span>
           </button>
           {!isAuthenticated && (
-            <span className="text-[11px] text-ink/60">
+            <span className="text-[11px] text-indigo-ink/60">
               (Saved locally to browser)
             </span>
           )}
@@ -428,34 +430,34 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
 
       {/* 2. Scan Reliability Card */}
       <div
-        className="bg-paper-2/95 p-5 rounded-3xl border border-paper-border shadow-card relative overflow-hidden"
-        style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+        className="bg-rice p-5 rounded-3xl border-2 border-indigo-ink/20 shadow-folk-card relative overflow-hidden"
+        style={{ outline: '1px solid rgba(26, 54, 68, 0.1)', outlineOffset: '2px' }}
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             {reliability.score === 'good' ? (
-              <ShieldCheck className="w-5 h-5 text-peacock" />
+              <ShieldCheck className="w-5 h-5 text-leaf" />
             ) : reliability.score === 'caution' ? (
-              <AlertTriangle className="w-5 h-5 text-saffron" />
+              <AlertTriangle className="w-5 h-5 text-haldi" />
             ) : (
-              <ShieldAlert className="w-5 h-5 text-vermilion" />
+              <ShieldAlert className="w-5 h-5 text-sindoor" />
             )}
-            <h3 className="text-xs font-heading font-bold text-peacock-deep uppercase tracking-wider">
+            <h3 className="text-xs font-heading font-bold text-indigo-ink uppercase tracking-wider">
               Scan Reliability Engine
             </h3>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono text-ink/75">
+            <span className="text-[11px] font-mono text-indigo-ink/75">
               Contrast: <strong>{reliability.contrastRatio}:1</strong>
             </span>
             <span
-              className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full capitalize ${
+              className={`text-xs font-extrabold px-3 py-1 rounded-full capitalize ${
                 reliability.score === 'good'
-                  ? 'bg-peacock/15 text-peacock-deep border border-peacock/30'
+                  ? 'bg-leaf text-rice border border-leaf-light'
                   : reliability.score === 'caution'
-                  ? 'bg-saffron-50 text-peacock-deep border border-saffron-300'
-                  : 'bg-vermilion-50 text-vermilion border border-vermilion/30'
+                  ? 'bg-haldi text-indigo-ink border border-indigo-ink font-bold'
+                  : 'bg-sindoor text-rice border border-sindoor-light'
               }`}
             >
               {reliability.score}
@@ -466,15 +468,15 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
         {/* Errors / Warnings List */}
         <div className="space-y-2 text-xs">
           {reliability.errors.map((err, i) => (
-            <div key={i} className="p-2.5 rounded-xl bg-vermilion-50/60 border border-vermilion/30 text-vermilion flex items-start gap-2">
+            <div key={i} className="p-2.5 rounded-xl bg-sindoor/15 border border-sindoor/30 text-sindoor flex items-start gap-2">
               <ShieldAlert className="w-4 h-4 flex-shrink-0 mt-0.5" />
               <span>{err}</span>
             </div>
           ))}
 
           {reliability.warnings.map((warn, i) => (
-            <div key={i} className="p-2.5 rounded-xl bg-saffron-50 border border-saffron-300 text-ink flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5 text-vermilion" />
+            <div key={i} className="p-2.5 rounded-xl bg-haldi/20 border border-haldi/50 text-indigo-ink flex items-start gap-2 font-medium">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5 text-sindoor" />
               <span>{warn}</span>
             </div>
           ))}

@@ -3,8 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo';
 import { useAuth } from '../hooks/useAuth';
 import { evaluatePasswordStrength } from '../lib/crypto';
-import { Sparkles, ArrowRight, ShieldAlert, Eye, EyeOff } from 'lucide-react';
-import { Corner } from '../art/Corner';
+import { Sparkles, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { DoubleLineBorder } from '../art/DoubleLineBorder';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -87,36 +87,36 @@ export const LoginPage: React.FC = () => {
         {/* Header Branding */}
         <div className="flex flex-col items-center mb-6 text-center">
           <Logo size="lg" className="mb-2" />
-          <p className="text-xs text-ink/75 font-heading">Handcrafted Madhubani QR Studio</p>
+          <p className="text-xs text-indigo-ink/75 font-heading">Handcrafted Madhubani QR Studio</p>
         </div>
 
-        {/* Auth Card */}
-        <div
-          className="p-8 rounded-3xl bg-paper-2/95 border border-paper-border shadow-card relative overflow-hidden"
-          style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+        {/* Auth Card wrapped in DoubleLineBorder */}
+        <DoubleLineBorder
+          variant="kachni"
+          strokeColor="#1A3644"
+          bandColor="#D99B26"
+          className="p-7 sm:p-8 bg-rice shadow-folk-card"
         >
-          <Corner position="top-right" size={28} strokeColor="#13504D" fillColor="#F79454" />
-
           {/* Quick Demo Access Button */}
-          <div className="mb-6 p-3.5 rounded-2xl bg-saffron-50 border border-saffron-300 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="mb-6 p-3.5 rounded-2xl bg-haldi/20 border border-haldi/50 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-left">
-              <Sparkles className="w-4 h-4 text-vermilion flex-shrink-0" />
+              <Sparkles className="w-4 h-4 text-sindoor flex-shrink-0" />
               <div>
-                <p className="text-xs font-heading font-bold text-peacock-deep">Reviewing this submission?</p>
-                <p className="text-[11px] text-ink/70">Pre-seeded templates and local workspace.</p>
+                <p className="text-xs font-heading font-bold text-indigo-ink">Reviewing this submission?</p>
+                <p className="text-[11px] text-indigo-ink/70">Pre-seeded templates and local workspace.</p>
               </div>
             </div>
             <button
               type="button"
               onClick={handleDemoLogin}
-              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-paper border border-peacock/40 text-peacock-deep hover:bg-paper-2 text-xs font-heading font-bold shadow-sm transition-all whitespace-nowrap active:scale-95 cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-rice border-2 border-indigo-ink text-indigo-ink hover:bg-rice-panel text-xs font-heading font-bold shadow-sm transition-all whitespace-nowrap active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-ink"
             >
               Try Demo Account
             </button>
           </div>
 
           {/* Tab switch between Sign In and Sign Up */}
-          <div className="flex rounded-xl bg-paper p-1 mb-6 border border-paper-border">
+          <div className="flex rounded-xl bg-rice-panel p-1 mb-6 border border-rice-border">
             <button
               type="button"
               onClick={() => {
@@ -125,8 +125,8 @@ export const LoginPage: React.FC = () => {
               }}
               className={`flex-1 py-2 text-xs font-heading font-bold rounded-lg transition-all ${
                 !isSignUp
-                  ? 'bg-peacock-deep text-white shadow-sm'
-                  : 'text-ink/70 hover:text-peacock-deep'
+                  ? 'bg-indigo-ink text-rice shadow-sm'
+                  : 'text-indigo-ink/70 hover:text-indigo-ink'
               }`}
             >
               Sign In
@@ -139,8 +139,8 @@ export const LoginPage: React.FC = () => {
               }}
               className={`flex-1 py-2 text-xs font-heading font-bold rounded-lg transition-all ${
                 isSignUp
-                  ? 'bg-peacock-deep text-white shadow-sm'
-                  : 'text-ink/70 hover:text-peacock-deep'
+                  ? 'bg-indigo-ink text-rice shadow-sm'
+                  : 'text-indigo-ink/70 hover:text-indigo-ink'
               }`}
             >
               Create Account
@@ -148,7 +148,7 @@ export const LoginPage: React.FC = () => {
           </div>
 
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-vermilion-50/60 border border-vermilion/30 text-vermilion text-xs font-medium">
+            <div className="mb-4 p-3 rounded-xl bg-sindoor/15 border border-sindoor/30 text-sindoor text-xs font-medium">
               {error}
             </div>
           )}
@@ -156,7 +156,7 @@ export const LoginPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
               <div>
-                <label className="block text-xs font-heading font-semibold text-peacock-deep mb-1">
+                <label className="block text-xs font-heading font-semibold text-indigo-ink mb-1">
                   Full Name
                 </label>
                 <input
@@ -164,14 +164,14 @@ export const LoginPage: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your Name"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-paper-border bg-paper text-ink text-sm focus:outline-none focus:ring-2 focus:ring-peacock-deep"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-rice-border bg-rice text-indigo-ink text-base focus:outline-none focus:ring-2 focus:ring-haldi"
                   required
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-heading font-semibold text-peacock-deep mb-1">
+              <label className="block text-xs font-heading font-semibold text-indigo-ink mb-1">
                 Email Address
               </label>
               <input
@@ -179,20 +179,20 @@ export const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@domain.com"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-paper-border bg-paper text-ink text-sm focus:outline-none focus:ring-2 focus:ring-peacock-deep"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-rice-border bg-rice text-indigo-ink text-base focus:outline-none focus:ring-2 focus:ring-haldi"
                 required
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-heading font-semibold text-peacock-deep">
+                <label className="block text-xs font-heading font-semibold text-indigo-ink">
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-[11px] text-ink/70 hover:text-peacock-deep flex items-center gap-1"
+                  className="text-[11px] text-indigo-ink/70 hover:text-indigo-ink flex items-center gap-1"
                 >
                   {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   <span>{showPassword ? 'Hide' : 'Show'}</span>
@@ -203,7 +203,7 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 8 characters"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-paper-border bg-paper text-ink text-sm focus:outline-none focus:ring-2 focus:ring-peacock-deep"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-rice-border bg-rice text-indigo-ink text-base focus:outline-none focus:ring-2 focus:ring-haldi"
                 required
               />
 
@@ -211,19 +211,21 @@ export const LoginPage: React.FC = () => {
               {isSignUp && password && (
                 <div className="mt-2 space-y-1.5">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-ink/65">Strength:</span>
+                    <span className="text-indigo-ink/65">Strength:</span>
                     <span className="font-bold" style={{ color: strength.color }}>
                       {strength.label}
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-paper-border rounded-full overflow-hidden flex gap-1">
+                  <div className="w-full h-1.5 bg-rice-border rounded-full overflow-hidden flex gap-1">
                     {[1, 2, 3, 4].map((step) => (
                       <div
                         key={step}
-                        className="h-full flex-1 rounded-full transition-all duration-300"
+                        className="flex-1 h-full rounded-full transition-all"
                         style={{
                           backgroundColor:
-                            step <= strength.score ? strength.color : '#E8DEC8',
+                            step <= strength.score
+                              ? strength.color
+                              : 'transparent',
                         }}
                       />
                     ))}
@@ -234,61 +236,62 @@ export const LoginPage: React.FC = () => {
 
             {isSignUp && (
               <div>
-                <label className="block text-xs font-heading font-semibold text-peacock-deep mb-1">
+                <label className="block text-xs font-heading font-semibold text-indigo-ink mb-1">
                   Confirm Password
                 </label>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repeat your password"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-paper-border bg-paper text-ink text-sm focus:outline-none focus:ring-2 focus:ring-peacock-deep"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-rice-border bg-rice text-indigo-ink text-base focus:outline-none focus:ring-2 focus:ring-haldi"
                   required
                 />
               </div>
             )}
 
-            {/* Terms checkbox */}
             {isSignUp && (
-              <label className="flex items-start gap-2.5 pt-1 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-0.5 rounded border-paper-border text-peacock-deep focus:ring-peacock-deep"
-                />
-                <span className="text-xs text-ink/75 leading-tight">
-                  I agree to the{' '}
-                  <Link to="/terms" className="text-peacock-deep font-semibold underline hover:text-vermilion" target="_blank">
-                    Terms & Privacy Disclosures
-                  </Link>
-                </span>
-              </label>
+              <div className="pt-1">
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="mt-0.5 rounded border-rice-border text-sindoor focus:ring-haldi"
+                    required
+                  />
+                  <span className="text-xs text-indigo-ink/80 leading-snug">
+                    I agree to the{' '}
+                    <Link to="/terms" target="_blank" className="text-indigo-ink font-bold underline hover:text-sindoor">
+                      Terms of Service & Privacy Disclosures
+                    </Link>
+                  </span>
+                </label>
+              </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 rounded-xl bg-vermilion hover:bg-vermilion-500 text-white font-heading font-bold text-sm shadow-sm shadow-vermilion-glow hover:shadow-saffron-glow transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2 border-2 border-dashed border-white/40 cursor-pointer"
+              className="w-full py-3 px-4 rounded-xl bg-sindoor hover:bg-sindoor-600 text-rice font-heading font-bold text-sm shadow-sm shadow-haldi-glow hover:shadow transition-all active:scale-95 flex items-center justify-center gap-2 border-2 border-haldi disabled:opacity-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-haldi"
             >
               <span>{loading ? 'Processing...' : isSignUp ? 'Create Account' : 'Sign In'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          {/* Client-Side Architecture Honest Notice */}
-          <div className="mt-6 pt-5 border-t border-paper-border flex items-start gap-2 text-[11px] text-ink/70">
-            <ShieldAlert className="w-4 h-4 text-vermilion flex-shrink-0 mt-0.5" />
-            <p>
-              <strong>Browser-Only Architecture:</strong> Accounts derive keys via PBKDF2 Web Crypto hashing and store sessions in local browser storage. No credentials leave your device.
+          {/* Academic & Privacy Note */}
+          <div className="mt-6 pt-4 border-t border-rice-border text-center">
+            <p className="text-[11px] text-indigo-ink/65 leading-relaxed">
+              Passwords are cryptographically salted and hashed using PBKDF2/SHA-256 in your browser. All session data stays strictly on your local device.
             </p>
           </div>
-        </div>
+        </DoubleLineBorder>
 
-        {/* Back to Home / Guest Workspace */}
+        {/* Back Link */}
         <div className="mt-4 text-center">
-          <Link to="/app" className="text-xs font-semibold text-ink/75 hover:text-peacock-deep">
-            Continue to Workspace as Guest &rarr;
+          <Link to="/" className="text-xs text-indigo-ink/75 hover:text-indigo-ink underline font-semibold">
+            &larr; Back to Welcome Gate
           </Link>
         </div>
       </div>

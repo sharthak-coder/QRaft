@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo';
 import { ArrowLeft, ShieldAlert, BookOpen } from 'lucide-react';
 import { siteConfig } from '../config/site';
-import { Corner } from '../art/Corner';
+import { DoubleLineBorder } from '../art/DoubleLineBorder';
 import { MadhubaniArtCredit } from '../art/ArtCreditNote';
 
 const SECTIONS = [
@@ -30,10 +30,10 @@ export const TermsPage: React.FC = () => {
   return (
     <div className="min-h-screen p-4 sm:p-8 max-w-6xl mx-auto z-10 relative">
       {/* Top Bar */}
-      <div className="flex items-center justify-between pb-6 mb-8 border-b border-paper-border">
+      <div className="flex items-center justify-between pb-6 mb-8 border-b border-rice-border">
         <Link
           to="/app"
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-heading font-bold text-peacock-deep hover:text-vermilion transition-colors"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-heading font-bold text-indigo-ink hover:text-sindoor transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Workspace</span>
@@ -43,46 +43,51 @@ export const TermsPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Sticky Table of Contents (4 cols) */}
-        <aside
-          className="lg:col-span-4 lg:sticky lg:top-8 bg-paper-2/95 p-5 rounded-3xl border border-paper-border shadow-card hidden lg:block"
-          style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
-        >
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-paper-border">
-            <BookOpen className="w-4 h-4 text-peacock-deep" />
-            <h3 className="text-xs font-heading font-bold text-peacock-deep uppercase tracking-wider">
-              Table of Contents
-            </h3>
-          </div>
-          <nav className="space-y-1 text-xs max-h-[75vh] overflow-y-auto pr-1">
-            {SECTIONS.map((sec) => (
-              <a
-                key={sec.id}
-                href={`#${sec.id}`}
-                className="block py-1.5 px-2 rounded-lg text-ink/75 hover:text-peacock-deep hover:bg-paper font-medium transition-colors truncate"
-              >
-                {sec.title}
-              </a>
-            ))}
-          </nav>
+        <aside className="lg:col-span-4 lg:sticky lg:top-8 hidden lg:block">
+          <DoubleLineBorder
+            variant="kachni"
+            strokeColor="#1A3644"
+            bandColor="#D99B26"
+            className="p-5 bg-rice shadow-folk-card"
+          >
+            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-rice-border">
+              <BookOpen className="w-4 h-4 text-indigo-ink" />
+              <h3 className="text-xs font-heading font-bold text-indigo-ink uppercase tracking-wider">
+                Table of Contents
+              </h3>
+            </div>
+            <nav className="space-y-1 text-xs max-h-[75vh] overflow-y-auto pr-1">
+              {SECTIONS.map((sec) => (
+                <a
+                  key={sec.id}
+                  href={`#${sec.id}`}
+                  className="block py-1.5 px-2 rounded-lg text-indigo-ink/75 hover:text-indigo-ink hover:bg-rice-panel font-medium transition-colors truncate"
+                >
+                  {sec.title}
+                </a>
+              ))}
+            </nav>
+          </DoubleLineBorder>
         </aside>
 
         {/* Legal Text Body (8 cols) */}
-        <main
-          className="lg:col-span-8 bg-paper-2/95 p-6 sm:p-10 rounded-3xl border border-paper-border shadow-card space-y-8 text-sm text-ink leading-relaxed relative overflow-hidden"
-          style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
-        >
-          <Corner position="top-right" size={32} strokeColor="#13504D" fillColor="#F79454" />
-
-          {/* Academic Disclaimer Banner */}
-          <div className="p-4 rounded-2xl bg-saffron-50 border border-saffron-300 text-ink text-xs flex items-start gap-3">
-            <ShieldAlert className="w-5 h-5 flex-shrink-0 text-vermilion mt-0.5" />
-            <div>
-              <p className="font-heading font-bold text-peacock-deep">Academic Project Submission Notice</p>
-              <p className="mt-1 leading-normal text-ink/80">
-                This document discloses the architecture and client-side processing policies of QRaft, engineered as an individual technical recruitment submission for GDG on Campus, SRM IST. All processing occurs locally on the user's device.
-              </p>
+        <main className="lg:col-span-8">
+          <DoubleLineBorder
+            variant="bharni"
+            strokeColor="#1A3644"
+            bandColor="#D99B26"
+            className="p-6 sm:p-10 bg-rice shadow-folk-card space-y-8 text-sm text-indigo-ink leading-relaxed"
+          >
+            {/* Academic Disclaimer Banner */}
+            <div className="p-4 rounded-2xl bg-haldi/20 border border-haldi/50 text-indigo-ink text-xs flex items-start gap-3">
+              <ShieldAlert className="w-5 h-5 flex-shrink-0 text-sindoor mt-0.5" />
+              <div>
+                <p className="font-heading font-bold text-indigo-ink">Academic Project Submission Notice</p>
+                <p className="mt-1 leading-normal text-indigo-ink/80">
+                  This document discloses the architecture and client-side processing policies of QRaft, engineered as an individual technical recruitment submission for GDG on Campus, SRM IST. All processing occurs locally on the user's device.
+                </p>
+              </div>
             </div>
-          </div>
 
           <div>
             <h1 className="text-3xl font-heading font-extrabold text-peacock-deep tracking-tight">
@@ -236,7 +241,8 @@ export const TermsPage: React.FC = () => {
             </div>
           </section>
 
-          <MadhubaniArtCredit className="pt-4 border-t border-paper-border" />
+          <MadhubaniArtCredit className="pt-4 border-t border-rice-border" />
+        </DoubleLineBorder>
         </main>
       </div>
     </div>

@@ -2,11 +2,9 @@ import React from 'react';
 
 export const MadhubaniArtCredit: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
-    <div className={`text-xs text-ink/70 leading-relaxed ${className}`}>
+    <div className={`text-xs text-indigo-ink/75 leading-relaxed ${className}`}>
       <p>
-        <strong>About the art style:</strong> The visual motifs throughout QRaft are inspired by the traditional
-        Madhubani (Mithila) folk art of Bihar, India, characterized by geometric double-line contours,
-        stylized nature symbolism, and intricate line hatching.
+        <strong>About the design:</strong> The visual motifs and borders throughout QRaft are inspired by the traditional Madhubani (Mithila) folk art of Bihar, India. We gratefully acknowledge the rich cultural heritage and centuries-old living traditions of Mithila artists.
       </p>
     </div>
   );
