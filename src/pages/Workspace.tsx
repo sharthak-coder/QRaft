@@ -138,11 +138,11 @@ export const WorkspacePage: React.FC = () => {
               {activeTab === '3d' && (
                 <Suspense
                   fallback={
-                    <div className="p-16 flex flex-col items-center justify-center text-center">
-                      <RefreshCw className="w-8 h-8 text-google-blue-royal animate-spin mb-3" />
-                      <p className="text-xs font-bold text-surface-text">Loading 3D WebGL Engine...</p>
-                      <p className="text-[11px] text-surface-muted mt-1">
-                        Compiling Three.js shader pipelines and instanced mesh geometry.
+                    <div className="p-16 flex flex-col items-center justify-center text-center bg-paper-2/95 rounded-3xl border border-paper-border shadow-card">
+                      <RefreshCw className="w-8 h-8 text-peacock-deep animate-spin mb-3" />
+                      <p className="text-xs font-heading font-bold text-peacock-deep">Loading 3D WebGL Engine...</p>
+                      <p className="text-[11px] text-ink/65 mt-1">
+                        Compiling Three.js shader pipelines and instanced Madhubani mesh geometry.
                       </p>
                     </div>
                   }
@@ -183,35 +183,38 @@ export const WorkspacePage: React.FC = () => {
 
       {/* Shared Link Import Modal */}
       {sharedPayload && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md p-6 rounded-3xl bg-white shadow-2xl border border-surface-border text-center relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm animate-fade-in">
+          <div
+            className="w-full max-w-md p-6 rounded-3xl bg-paper-2 shadow-2xl border border-paper-border text-center relative overflow-hidden"
+            style={{ outline: '1px solid rgba(19, 80, 77, 0.1)', outlineOffset: '2px' }}
+          >
             <button
               type="button"
               onClick={() => setSharedPayload(null)}
-              className="absolute top-4 right-4 p-1.5 text-surface-muted hover:text-surface-text rounded-xl hover:bg-surface-soft"
+              className="absolute top-4 right-4 p-1.5 text-ink/60 hover:text-peacock-deep rounded-xl hover:bg-paper"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-google-blue-royal flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-saffron-50 text-vermilion border border-saffron-300 flex items-center justify-center mx-auto mb-3">
               <Sparkles className="w-6 h-6" />
             </div>
 
-            <h3 className="text-base font-bold text-surface-text">Shared QRaft Template</h3>
-            <p className="text-xs text-surface-muted mt-1 mb-4">
+            <h3 className="text-base font-heading font-bold text-peacock-deep">Shared QRaft Template</h3>
+            <p className="text-xs text-ink/70 mt-1 mb-4">
               Someone shared a custom QR code design with you via an encrypted URL hash.
             </p>
 
-            <div className="p-4 rounded-2xl bg-surface-soft border border-surface-border text-left mb-6 space-y-1.5">
-              <p className="text-xs font-bold text-surface-text">{sharedPayload.name}</p>
-              <p className="text-[11px] text-surface-muted">
+            <div className="p-4 rounded-2xl bg-paper border border-paper-border text-left mb-6 space-y-1.5">
+              <p className="text-xs font-heading font-bold text-peacock-deep">{sharedPayload.name}</p>
+              <p className="text-[11px] text-ink/65">
                 Type: <strong className="uppercase">{sharedPayload.type}</strong> &bull; Author: {sharedPayload.authorName || 'Anonymous'}
               </p>
             </div>
 
             {sharedImportSuccess ? (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 text-google-green text-xs font-bold rounded-xl flex items-center justify-center gap-2">
-                <Check className="w-4 h-4" />
+              <div className="p-3 bg-peacock/15 border border-peacock/30 text-peacock-deep text-xs font-bold rounded-xl flex items-center justify-center gap-2">
+                <Check className="w-4 h-4 text-peacock" />
                 <span>Saved to My Templates! Redirecting...</span>
               </div>
             ) : (
@@ -219,14 +222,14 @@ export const WorkspacePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSharedPayload(null)}
-                  className="flex-1 py-2.5 px-4 rounded-xl border border-surface-border text-xs font-semibold text-surface-text hover:bg-surface-soft"
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-paper-border text-xs font-heading font-semibold text-ink hover:bg-paper"
                 >
                   Dismiss
                 </button>
                 <button
                   type="button"
                   onClick={handleImportShared}
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-google-blue-royal to-google-blue text-white text-xs font-bold shadow-royal-glow hover:shadow transition-all"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-vermilion hover:bg-vermilion-500 text-white text-xs font-heading font-bold shadow-sm shadow-vermilion-glow hover:shadow transition-all border border-white/30"
                 >
                   Import Template
                 </button>
