@@ -3,6 +3,8 @@ import {
   isFinderPattern,
   isTimingPattern,
   isFinderSeparator,
+  isAlignmentPattern,
+  getAlignmentPositions,
   renderQrToCanvas,
   renderQrToSvgString,
 } from '../lib/qrRenderer';
@@ -69,6 +71,21 @@ describe('Designer QR Renderer Engine (qrRenderer.ts)', () => {
 
       // General data cells
       expect(isTimingPattern(10, 10, size)).toBe(false);
+    });
+
+    it('identifies QR code alignment pattern locations and modules', () => {
+      // Version 1 has no alignment patterns
+      expect(getAlignmentPositions(1)).toEqual([]);
+
+      // Version 4 has alignment pattern at [26, 26]
+      const v4Positions = getAlignmentPositions(4);
+      expect(v4Positions).toEqual([[26, 26]]);
+      expect(isAlignmentPattern(26, 26, 4)).toBe(true);
+      expect(isAlignmentPattern(24, 24, 4)).toBe(true);
+      expect(isAlignmentPattern(28, 28, 4)).toBe(true);
+      // Outside 5x5 zone
+      expect(isAlignmentPattern(23, 26, 4)).toBe(false);
+      expect(isAlignmentPattern(10, 10, 4)).toBe(false);
     });
   });
 

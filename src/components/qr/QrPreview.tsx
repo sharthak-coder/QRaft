@@ -242,11 +242,16 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
               accentColor="#A62B2B"
               highlightColor="#D99B26"
             >
-              <div className="relative p-2 bg-rice flex items-center justify-center">
+              <div className="relative w-full max-w-[260px] aspect-square p-1 sm:p-2 bg-rice rounded-xl flex items-center justify-center">
                 <canvas
                   ref={canvasRef}
-                  className="max-w-full max-h-full rounded-lg transition-all"
-                  style={{ width: `${Math.min(style.size, 250)}px`, height: `${Math.min(style.size, 250)}px` }}
+                  className="rounded-lg shadow-sm block mx-auto aspect-square object-contain"
+                  style={{
+                    width: '100%',
+                    maxWidth: `${Math.min(style.size, 250)}px`,
+                    height: 'auto',
+                    aspectRatio: '1 / 1',
+                  }}
                 />
               </div>
             </JharokhaFrame>

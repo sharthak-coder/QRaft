@@ -21,16 +21,35 @@ export function verifyCanvasScan(
 
   try {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+    let code = jsQR(imageData.data, imageData.width, imageData.height, {
       inversionAttempts: 'attemptBoth',
     });
+
+    // Multi-scale fallback (mitigates 8px binarizer grid resonance on inverted palettes)
+    if (!code && typeof document !== 'undefined') {
+      const altSizes = [280, 360];
+      for (const altSize of altSizes) {
+        const offscreen = document.createElement('canvas');
+        offscreen.width = altSize;
+        offscreen.height = altSize;
+        const offCtx = offscreen.getContext('2d');
+        if (offCtx) {
+          offCtx.drawImage(canvas, 0, 0, altSize, altSize);
+          const altData = offCtx.getImageData(0, 0, altSize, altSize);
+          code = jsQR(altData.data, altData.width, altData.height, {
+            inversionAttempts: 'attemptBoth',
+          });
+          if (code) break;
+        }
+      }
+    }
 
     if (!code) {
       return {
         checked: true,
         success: false,
         match: false,
-        message: 'No QR code could be detected by the scanning engine. Contrast or quiet zone may be insufficient.',
+        message: 'Could not be decoded in camera test. Contrast, quiet zone, or module shape may need adjustment.',
       };
     }
 

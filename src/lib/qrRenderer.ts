@@ -41,6 +41,48 @@ export function isTimingPattern(row: number, col: number, size: number): boolean
 }
 
 /**
+ * Returns center [row, col] coordinates for all alignment patterns for a given QR version.
+ */
+export function getAlignmentPositions(version: number): Array<[number, number]> {
+  if (version < 2) return [];
+  const posCount = Math.floor(version / 7) + 2;
+  const size = version * 4 + 17;
+  const intervals = size === 145 ? 26 : Math.ceil((size - 13) / (2 * posCount - 2)) * 2;
+  const positions = [size - 7];
+  for (let i = 1; i < posCount - 1; i++) {
+    positions[i] = positions[i - 1] - intervals;
+  }
+  positions.push(6);
+  positions.reverse();
+
+  const coords: Array<[number, number]> = [];
+  const len = positions.length;
+  for (let i = 0; i < len; i++) {
+    for (let j = 0; j < len; j++) {
+      if ((i === 0 && j === 0) || (i === 0 && j === len - 1) || (i === len - 1 && j === 0)) {
+        continue;
+      }
+      coords.push([positions[i], positions[j]]);
+    }
+  }
+  return coords;
+}
+
+/**
+ * Checks if a given row/col in an N x N QR matrix falls within any 5x5 alignment pattern.
+ */
+export function isAlignmentPattern(row: number, col: number, version: number): boolean {
+  if (version < 2) return false;
+  const positions = getAlignmentPositions(version);
+  for (const [ar, ac] of positions) {
+    if (Math.abs(row - ar) <= 2 && Math.abs(col - ac) <= 2) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Deterministic pseudo-random number generator for procedural paper texture.
  */
 function seededRandom(seed: number): () => number {
@@ -218,21 +260,21 @@ export function drawFinderPatternOnCanvas(
     ctx.fillStyle = fillStyle;
     ctx.fillRect(fx + 2 * cellSize, fy + 2 * cellSize, 3 * cellSize, 3 * cellSize);
   } else if (shape === 'rounded') {
-    // Outer 7x7 rounded
+    // Outer 7x7 rounded (safe corner radius to preserve 1:1:3:1:1 diagonal chord detection)
     ctx.beginPath();
-    drawRoundRect(ctx, fx, fy, fsize, fsize, cellSize * 1.5);
+    drawRoundRect(ctx, fx, fy, fsize, fsize, cellSize * 0.7);
     ctx.fill();
 
     // Inner 5x5 light cut
     ctx.fillStyle = bgColor;
     ctx.beginPath();
-    drawRoundRect(ctx, fx + cellSize, fy + cellSize, 5 * cellSize, 5 * cellSize, cellSize * 1.0);
+    drawRoundRect(ctx, fx + cellSize, fy + cellSize, 5 * cellSize, 5 * cellSize, cellSize * 0.45);
     ctx.fill();
 
     // Center 3x3 dark core
     ctx.fillStyle = fillStyle;
     ctx.beginPath();
-    drawRoundRect(ctx, fx + 2 * cellSize, fy + 2 * cellSize, 3 * cellSize, 3 * cellSize, cellSize * 0.75);
+    drawRoundRect(ctx, fx + 2 * cellSize, fy + 2 * cellSize, 3 * cellSize, 3 * cellSize, cellSize * 0.3);
     ctx.fill();
   } else if (shape === 'circle-ring') {
     // Outer ring
@@ -280,22 +322,24 @@ function drawModuleOnCanvas(
   }
 
   if (shape === 'dot') {
-    // High-radius dot maintaining sufficient area for binarizer
+    // High-radius dot maintaining sufficient area (>= 72%) for binarizer
     const cx = x + cellSize / 2;
     const cy = y + cellSize / 2;
     ctx.beginPath();
-    ctx.arc(cx, cy, cellSize * 0.46, 0, Math.PI * 2);
+    ctx.arc(cx, cy, cellSize * 0.48, 0, Math.PI * 2);
     ctx.fill();
     return;
   }
 
   if (shape === 'diamond') {
     const pad = cellSize * 0.04;
+    const cx = x + cellSize / 2;
+    const cy = y + cellSize / 2;
     ctx.beginPath();
-    ctx.moveTo(x + cellSize / 2, y + pad);
-    ctx.lineTo(x + cellSize - pad, y + cellSize / 2);
-    ctx.lineTo(x + cellSize / 2, y + cellSize - pad);
-    ctx.lineTo(x + pad, y + cellSize / 2);
+    ctx.moveTo(cx, y + pad);
+    ctx.lineTo(x + cellSize - pad, cy);
+    ctx.lineTo(cx, y + cellSize - pad);
+    ctx.lineTo(x + pad, cy);
     ctx.closePath();
     ctx.fill();
     return;
@@ -320,6 +364,8 @@ function drawModuleOnCanvas(
 
 /**
  * Draws authentic Madhubani hand-drawn accents inside a module.
+ * Uses dynamic background color at gentle opacity, preserving the module's core
+ * luminance so optical camera barcode binarizers read the data accurately.
  */
 function drawMadhubaniAccent(
   ctx: CanvasRenderingContext2D,
@@ -327,16 +373,18 @@ function drawMadhubaniAccent(
   y: number,
   cellSize: number,
   artStyle: MadhubaniArtStyle,
-  _fgColor?: string
+  bgColor: string = '#FFFDF8'
 ): void {
   if (artStyle === 'none') return;
 
   ctx.save();
+  ctx.globalAlpha = 0.35;
+  ctx.strokeStyle = bgColor;
+  ctx.fillStyle = bgColor;
 
   if (artStyle === 'katchni') {
-    // Delicate traditional 45-degree diagonal hatching
-    ctx.strokeStyle = '#FFFDF8';
-    ctx.lineWidth = Math.max(0.75, cellSize * 0.09);
+    // Delicate traditional 45-degree diagonal hatching at safe non-destructive opacity
+    ctx.lineWidth = Math.max(0.6, cellSize * 0.08);
     ctx.beginPath();
     ctx.moveTo(x + cellSize * 0.15, y + cellSize * 0.85);
     ctx.lineTo(x + cellSize * 0.85, y + cellSize * 0.15);
@@ -348,15 +396,18 @@ function drawMadhubaniAccent(
     ctx.lineTo(x + cellSize * 0.95, y + cellSize * 0.55);
     ctx.stroke();
   } else if (artStyle === 'godna') {
-    // Concentric tiny dot center
-    ctx.fillStyle = '#FFFDF8';
+    // 4 corner stipple dots leaving the critical 50% center sampling core solid
+    const d = cellSize * 0.28;
+    const r = Math.max(0.6, cellSize * 0.08);
     ctx.beginPath();
-    ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize * 0.14, 0, Math.PI * 2);
+    ctx.arc(x + cellSize / 2 - d, y + cellSize / 2 - d, r, 0, Math.PI * 2);
+    ctx.arc(x + cellSize / 2 + d, y + cellSize / 2 - d, r, 0, Math.PI * 2);
+    ctx.arc(x + cellSize / 2 - d, y + cellSize / 2 + d, r, 0, Math.PI * 2);
+    ctx.arc(x + cellSize / 2 + d, y + cellSize / 2 + d, r, 0, Math.PI * 2);
     ctx.fill();
   } else if (artStyle === 'bharni') {
-    // Double outline border
-    ctx.strokeStyle = '#FFFDF8';
-    ctx.lineWidth = Math.max(0.75, cellSize * 0.08);
+    // Double outline border at safe opacity
+    ctx.lineWidth = Math.max(0.6, cellSize * 0.08);
     const inset = cellSize * 0.22;
     ctx.strokeRect(x + inset, y + inset, cellSize - 2 * inset, cellSize - 2 * inset);
   }
@@ -382,6 +433,7 @@ export async function renderQrToCanvas(
   });
 
   const matrixSize = qr.modules.size;
+  const version = qr.version;
   const margin = style.margin;
   const totalModules = matrixSize + margin * 2;
 
@@ -436,7 +488,7 @@ export async function renderQrToCanvas(
     return Boolean(qr.modules.get(r, c));
   };
 
-  // 4. Render Data Modules & Timing Modules
+  // 4. Render Data Modules & Structural Modules
   for (let r = 0; r < matrixSize; r++) {
     for (let c = 0; c < matrixSize; c++) {
       if (!isDark(r, c)) continue;
@@ -448,8 +500,10 @@ export async function renderQrToCanvas(
       const y = (margin + r) * cellSize;
 
       const isTiming = isTimingPattern(r, c, matrixSize);
-      // For timing patterns, use square or rounded to guarantee scan line edge detection
-      const effectiveShape: ModuleShape = isTiming
+      const isAlign = isAlignmentPattern(r, c, version);
+
+      // For timing and alignment patterns, use rounded/solid shapes to guarantee optical scan line detection
+      const effectiveShape: ModuleShape = (isTiming || isAlign)
         ? moduleShape === 'dot' || moduleShape === 'diamond'
           ? 'rounded'
           : moduleShape
@@ -465,8 +519,8 @@ export async function renderQrToCanvas(
       ctx.fillStyle = fillStyle;
       drawModuleOnCanvas(ctx, x, y, cellSize, effectiveShape, neighbors);
 
-      if (artStyle !== 'none' && !isTiming) {
-        drawMadhubaniAccent(ctx, x, y, cellSize, artStyle, style.fgColor);
+      if (artStyle !== 'none' && !isTiming && !isAlign) {
+        drawMadhubaniAccent(ctx, x, y, cellSize, artStyle, style.bgColor);
       }
     }
   }
@@ -492,12 +546,31 @@ export async function renderQrToCanvas(
     );
   }
 
-  // 6. Automated live jsQR verification
+  // 6. Automated live jsQR verification with multi-scale fallback
   try {
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imgData.data, imgData.width, imgData.height, {
+    let code = jsQR(imgData.data, imgData.width, imgData.height, {
       inversionAttempts: 'attemptBoth',
     });
+
+    // Multi-scale fallback (mitigates 8px binarizer grid resonance on inverted palettes)
+    if (!code && typeof document !== 'undefined') {
+      const altSizes = [280, 360];
+      for (const altSize of altSizes) {
+        const offscreen = document.createElement('canvas');
+        offscreen.width = altSize;
+        offscreen.height = altSize;
+        const offCtx = offscreen.getContext('2d');
+        if (offCtx) {
+          offCtx.drawImage(canvas, 0, 0, altSize, altSize);
+          const altData = offCtx.getImageData(0, 0, altSize, altSize);
+          code = jsQR(altData.data, altData.width, altData.height, {
+            inversionAttempts: 'attemptBoth',
+          });
+          if (code) break;
+        }
+      }
+    }
 
     const isMatch = Boolean(code && code.data.trim() === payload.trim());
     return {
@@ -519,6 +592,7 @@ export function renderQrToSvgString(payload: string, style: QrStyle): string {
   });
 
   const matrixSize = qr.modules.size;
+  const version = qr.version;
   const margin = style.margin;
   const totalModules = matrixSize + margin * 2;
   const cellSize = style.size / totalModules;
@@ -579,9 +653,9 @@ export function renderQrToSvgString(payload: string, style: QrStyle): string {
       elements += `<rect x="${fx + cellSize}" y="${fy + cellSize}" width="${5 * cellSize}" height="${5 * cellSize}" fill="${style.bgColor}" />\n`;
       elements += `<rect x="${fx + 2 * cellSize}" y="${fy + 2 * cellSize}" width="${3 * cellSize}" height="${3 * cellSize}" ${fillAttr} />\n`;
     } else if (finderShape === 'rounded') {
-      elements += `<rect x="${fx}" y="${fy}" width="${fsize}" height="${fsize}" rx="${cellSize * 1.5}" ${fillAttr} />\n`;
-      elements += `<rect x="${fx + cellSize}" y="${fy + cellSize}" width="${5 * cellSize}" height="${5 * cellSize}" rx="${cellSize * 1.0}" fill="${style.bgColor}" />\n`;
-      elements += `<rect x="${fx + 2 * cellSize}" y="${fy + 2 * cellSize}" width="${3 * cellSize}" height="${3 * cellSize}" rx="${cellSize * 0.75}" ${fillAttr} />\n`;
+      elements += `<rect x="${fx}" y="${fy}" width="${fsize}" height="${fsize}" rx="${cellSize * 0.7}" ${fillAttr} />\n`;
+      elements += `<rect x="${fx + cellSize}" y="${fy + cellSize}" width="${5 * cellSize}" height="${5 * cellSize}" rx="${cellSize * 0.45}" fill="${style.bgColor}" />\n`;
+      elements += `<rect x="${fx + 2 * cellSize}" y="${fy + 2 * cellSize}" width="${3 * cellSize}" height="${3 * cellSize}" rx="${cellSize * 0.3}" ${fillAttr} />\n`;
     } else if (finderShape === 'circle-ring') {
       elements += `<circle cx="${cx}" cy="${cy}" r="${3.5 * cellSize}" ${fillAttr} />\n`;
       elements += `<circle cx="${cx}" cy="${cy}" r="${2.5 * cellSize}" fill="${style.bgColor}" />\n`;
@@ -597,8 +671,9 @@ export function renderQrToSvgString(payload: string, style: QrStyle): string {
       const x = (margin + c) * cellSize;
       const y = (margin + r) * cellSize;
       const isTiming = isTimingPattern(r, c, matrixSize);
+      const isAlign = isAlignmentPattern(r, c, version);
 
-      const effectiveShape: ModuleShape = isTiming
+      const effectiveShape: ModuleShape = (isTiming || isAlign)
         ? moduleShape === 'dot' || moduleShape === 'diamond'
           ? 'rounded'
           : moduleShape
@@ -613,7 +688,7 @@ export function renderQrToSvgString(payload: string, style: QrStyle): string {
       } else if (effectiveShape === 'dot') {
         const cx = x + cellSize / 2;
         const cy = y + cellSize / 2;
-        elements += `<circle cx="${cx}" cy="${cy}" r="${cellSize * 0.46}" ${fillAttr} />\n`;
+        elements += `<circle cx="${cx}" cy="${cy}" r="${cellSize * 0.48}" ${fillAttr} />\n`;
       } else if (effectiveShape === 'diamond') {
         const pad = cellSize * 0.04;
         const p1 = `${x + cellSize / 2},${y + pad}`;
@@ -636,14 +711,21 @@ export function renderQrToSvgString(payload: string, style: QrStyle): string {
         elements += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="${Math.max(rTopLeft, rTopRight, rBottomRight, rBottomLeft)}" ${fillAttr} />\n`;
       }
 
-      // Madhubani Art Accents in SVG
-      if (artStyle === 'katchni' && !isTiming) {
-        elements += `<line x1="${x + cellSize * 0.15}" y1="${y + cellSize * 0.85}" x2="${x + cellSize * 0.85}" y2="${y + cellSize * 0.15}" stroke="#FFFDF8" stroke-width="${Math.max(0.75, cellSize * 0.09)}" />\n`;
-      } else if (artStyle === 'godna' && !isTiming) {
-        elements += `<circle cx="${x + cellSize / 2}" cy="${y + cellSize / 2}" r="${cellSize * 0.14}" fill="#FFFDF8" />\n`;
-      } else if (artStyle === 'bharni' && !isTiming) {
-        const inset = cellSize * 0.22;
-        elements += `<rect x="${x + inset}" y="${y + inset}" width="${cellSize - 2 * inset}" height="${cellSize - 2 * inset}" fill="none" stroke="#FFFDF8" stroke-width="${Math.max(0.75, cellSize * 0.08)}" />\n`;
+      // Safe Madhubani Art Accents in SVG
+      if (artStyle !== 'none' && !isTiming && !isAlign) {
+        if (artStyle === 'katchni') {
+          elements += `<line x1="${x + cellSize * 0.15}" y1="${y + cellSize * 0.85}" x2="${x + cellSize * 0.85}" y2="${y + cellSize * 0.15}" stroke="${style.bgColor}" stroke-opacity="0.35" stroke-width="${Math.max(0.6, cellSize * 0.08)}" />\n`;
+        } else if (artStyle === 'godna') {
+          const d = cellSize * 0.28;
+          const r = Math.max(0.6, cellSize * 0.08);
+          elements += `<circle cx="${x + cellSize / 2 - d}" cy="${y + cellSize / 2 - d}" r="${r}" fill="${style.bgColor}" fill-opacity="0.4" />\n`;
+          elements += `<circle cx="${x + cellSize / 2 + d}" cy="${y + cellSize / 2 - d}" r="${r}" fill="${style.bgColor}" fill-opacity="0.4" />\n`;
+          elements += `<circle cx="${x + cellSize / 2 - d}" cy="${y + cellSize / 2 + d}" r="${r}" fill="${style.bgColor}" fill-opacity="0.4" />\n`;
+          elements += `<circle cx="${x + cellSize / 2 + d}" cy="${y + cellSize / 2 + d}" r="${r}" fill="${style.bgColor}" fill-opacity="0.4" />\n`;
+        } else if (artStyle === 'bharni') {
+          const inset = cellSize * 0.22;
+          elements += `<rect x="${x + inset}" y="${y + inset}" width="${cellSize - 2 * inset}" height="${cellSize - 2 * inset}" fill="none" stroke="${style.bgColor}" stroke-opacity="0.3" stroke-width="${Math.max(0.6, cellSize * 0.08)}" />\n`;
+        }
       }
     }
   }

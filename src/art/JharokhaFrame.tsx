@@ -89,7 +89,7 @@ export const JharokhaFrame: React.FC<JharokhaFrameProps> = ({
       <div className="relative w-full flex items-center justify-center my-1">
         {/* Left Side Pillar Motif */}
         <div className="hidden sm:flex flex-col items-center justify-around h-full pr-2 select-none pointer-events-none opacity-85">
-          <svg className="w-4 h-48" viewBox="0 0 16 192" fill="none">
+          <svg className="w-4 h-full max-h-48" viewBox="0 0 16 192" preserveAspectRatio="none" fill="none">
             <line x1="4" y1="0" x2="4" y2="192" stroke={strokeColor} strokeWidth="1.2" />
             <line x1="12" y1="0" x2="12" y2="192" stroke={strokeColor} strokeWidth="1.2" />
             {[20, 52, 84, 116, 148, 180].map((y, i) => (
@@ -106,7 +106,7 @@ export const JharokhaFrame: React.FC<JharokhaFrameProps> = ({
 
         {/* Clean Inner Window Opening */}
         <div
-          className={`relative z-10 p-4 sm:p-5 rounded-2xl bg-rice shadow-inner border border-rice-border flex items-center justify-center ${innerClassName}`}
+          className={`relative z-10 w-full max-w-[270px] aspect-square p-2 sm:p-3 rounded-2xl bg-rice shadow-inner border border-rice-border flex items-center justify-center ${innerClassName}`}
           style={{
             boxShadow: 'inset 0 2px 6px rgba(26, 54, 68, 0.05)',
           }}
@@ -116,7 +116,7 @@ export const JharokhaFrame: React.FC<JharokhaFrameProps> = ({
 
         {/* Right Side Pillar Motif */}
         <div className="hidden sm:flex flex-col items-center justify-around h-full pl-2 select-none pointer-events-none opacity-85">
-          <svg className="w-4 h-48" viewBox="0 0 16 192" fill="none">
+          <svg className="w-4 h-full max-h-48" viewBox="0 0 16 192" preserveAspectRatio="none" fill="none">
             <line x1="4" y1="0" x2="4" y2="192" stroke={strokeColor} strokeWidth="1.2" />
             <line x1="12" y1="0" x2="12" y2="192" stroke={strokeColor} strokeWidth="1.2" />
             {[20, 52, 84, 116, 148, 180].map((y, i) => (
