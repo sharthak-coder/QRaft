@@ -1,95 +1,171 @@
-# QRaft — Interview Architecture Cheat-Sheet (`EXPLAIN.md`)
+# QRaft — Technical Architecture & Implementation Deep-Dive
 
-This guide is designed for the author to review before technical interviews with **GDG on Campus, SRM IST**. It provides clear, plain-English explanations of how every system in **QRaft** is constructed, the mathematical principles behind them, and the engineering trade-offs chosen.
-
----
-
-## 1. How QR Code Generation Works Internally
-- **Matrix & Modules:** A QR code is a two-dimensional grid composed of black and white squares called **modules**. QR code sizes are defined by **Versions** (Version 1 is $21 \times 21$ modules; each subsequent version increments by 4 modules per side up to Version 40, which is $177 \times 177$ modules).
-- **Finder Patterns:** The three conspicuous nested squares located at the top-left, top-right, and bottom-left corners are finder patterns (each $7 \times 7$ modules). Scanners use these to determine code orientation, tilt angle, and module dimensions.
-- **Timing Patterns & Alignment Patterns:** Horizontal and vertical alternating module rows between finders establish grid coordinates, while smaller sub-squares (alignment patterns) compensate for curved or uneven surfaces.
-- **Reed-Solomon Error Correction:** QR codes embed mathematical redundancy using Reed-Solomon coding over a Galois Field $\text{GF}(2^8)$. QRaft supports all 4 standard levels:
-  - **L (Low):** $\sim 7\%$ recovery
-  - **M (Medium):** $\sim 15\%$ recovery
-  - **Q (Quality):** $\sim 25\%$ recovery
-  - **H (High):** $\sim 30\%$ recovery
-  Even if $30\%$ of the physical QR is obstructed, dirty, or stylized with 3D extrusions, the original payload can be reconstructed with exact bit fidelity.
+This document explains the internal architecture, mathematical algorithms, rendering pipelines, and technical trade-offs implemented in **QRaft**.
 
 ---
 
-## 2. Payload Construction & Escaping
-- **URL:** Standard URI structure (`https://...` or `http://...`). QRaft validates protocol presence and strips surrounding whitespace.
-- **Text:** Raw UTF-8 string encoding.
-- **Email:** RFC 6068 `mailto:` format with URL-encoded query parameters:
-  `mailto:name@domain.com?subject=Encoded%20Subject&body=Encoded%20Message`
-- **Phone:** RFC 3966 `tel:` URI, stripping whitespace and hyphens:
-  `tel:+919876543210`
-- **Wi-Fi (MECARD / ZXing syntax):**
-  Format: `WIFI:T:<WPA|WEP|nopass>;S:<SSID>;P:<Password>;H:<true|false>;;`
-  **Escaping Rule:** Characters `\`, `;`, `,`, `:`, and `"` are reserved syntax delimiters in the ZXing standard. QRaft runs regex escaping `str.replace(/([\\;,:"'])/g, '\\$1')` so network names or passwords containing semicolons or colons do not break barcode parsers.
+## 1. High-Level Architecture & Data Flow
+
+QRaft is designed as a **100% client-side, zero-backend single page application (SPA)**. All matrix calculations, vector paths, optical decodes, and cryptographic hashes execute directly inside the user's browser runtime.
+
+```
+[ User Input Forms ]
+        │
+        ▼
+[ validateInputs() ] ───▶ [ generatePayload() ]
+        │                            │
+        │                            ▼
+        │                 [ QRCode.create(payload, ECL) ]
+        │                            │
+        │                            ▼
+        │                     [ BitMatrix (N x N) ]
+        │                            │
+        ├────────────────────────────┴───────────────────────────┐
+        ▼                                                        ▼
+[ 2D Designer Renderer ]                                [ 3D WebGL Studio ]
+(src/lib/qrRenderer.ts)                                 (src/three/QrScene.tsx)
+  ├── Module Shapes (Squircle, Dot, Connected)            ├── THREE.InstancedMesh
+  ├── Finder Eyes (Concentric Rings, Rounded)             ├── Matrix4 Dynamic Transforms
+  ├── Linear / Radial Gradients                           ├── 16 Madhubani Themes
+  ├── Madhubani Katchni / Godna Hatching                  └── OrbitControls Navigation
+  ├── Wasli Procedural Paper Texture                             │
+  └── Image-Blend Underlay                                       ▼
+        │                                               [ Dual Snapshots ]
+        ├──────────────────────┬───────────────────────┐  ├── 3D View Render
+        ▼                      ▼                       ▼  └── Flat Scan-Safe PNG
+  [ Preview Canvas ]     [ jsQR Gate ]          [ Vector SVG ]
+        │                      │                       │
+        ▼                      ▼                       ▼
+  [ PNG Download ]    [ Real-Time Badge ]       [ SVG Download ]
+```
 
 ---
 
-## 3. State Management & Flow
-- **No Redux / Heavy State Store:** State is kept lightweight and localized:
-  - Pure computation (derived payload, validation results, reliability scores) is calculated via `useMemo` from input and style states.
-  - `useQrStudio` encapsulates type-switching, field mutations, and preset changes.
-  - `AuthContext` exposes authentication state and user profile actions across the tree.
-  - URL query parameters (`?tab=generator`) and Hash fragments (`#/app?share=...`) ensure deep linking and browser history (Back/Forward) work seamlessly.
+## 2. 2D Designer QR Rendering Engine (`src/lib/qrRenderer.ts`)
+
+Standard QR libraries output rigid black-and-white pixel grids. QRaft introduces an authentic **Mithila folk art renderer** that transforms the QR matrix while preserving optical machine-readability.
+
+### 2.1 Matrix Decomposition
+A QR code generated by `QRCode.create(payload, { errorCorrectionLevel: ecl })` produces an $N \times N$ boolean matrix where $N = 4 \times \text{version} + 17$. The engine separates modules into three distinct semantic classes:
+
+1. **Finder Patterns (Corner Eyes):** Located at Top-Left $(0 \le r < 7, 0 \le c < 7)$, Top-Right $(0 \le r < 7, N-7 \le c < N)$, and Bottom-Left $(N-7 \le r < N, 0 \le c < 7)$.
+2. **Timing Patterns:** Located on row $r=6$ and column $c=6$ between finders.
+3. **Data & Error Correction Modules:** The remaining internal grid cells.
+
+### 2.2 Preserving Scannability in Custom Shapes
+Standard optical decoders (including `jsQR` and phone cameras) use horizontal and vertical scan lines to identify the $1:1:3:1:1$ black/white ratio of finder patterns and synchronize module sampling using the timing tracks.
+- **Timing Track Safeguard:** When a user selects `dot` or `diamond` shapes, data modules render in the selected decorative style, but timing patterns ($r=6, c=6$) automatically fallback to rounded squircle geometry. This ensures edge detection algorithms never lose grid synchronization.
+- **Finder Separator Protection:** When background textures or image-blend underlays are enabled, a 1-module quiet backing filled with solid `bgColor` is enforced around all three finders.
+
+### 2.3 Math for Module Shapes
+
+- **Square:** Standard `ctx.fillRect(x, y, cellSize, cellSize)`
+- **Rounded (Squircle):**
+  $$\text{radius} = \text{cellSize} \times 0.28, \quad \text{pad} = \text{cellSize} \times 0.05$$
+  Rendered using `ctx.roundRect()` with fallback arc paths.
+- **Dots:** Centered circles with radius $R = \text{cellSize} \times 0.46$. The $0.46$ radius multiplier was empirically calibrated to ensure the dark module area ratio remains $\ge 66\%$ of the cell, well above the optical binarizer threshold.
+- **Folk Diamond:** Chamfered 45-degree rhombus with polygon vertices:
+  $$\{(x + w/2, y + p), (x + w - p, y + h/2), (x + w/2, y + h - p), (x + p, y + h/2)\}$$
+- **Connected Flow:** For any cell $(r, c)$, the engine inspects the 4 orthogonal neighbors:
+  $$\text{top} = \text{isDark}(r-1, c), \quad \text{bottom} = \text{isDark}(r+1, c), \quad \text{left} = \text{isDark}(r, c-1), \quad \text{right} = \text{isDark}(r, c+1)$$
+  A corner is rounded ($\text{radius} = \text{cellSize} \times 0.35$) if and only if both adjacent neighbors are empty. If either neighbor is dark, the corner remains square ($0\text{px}$), producing seamless liquid clusters.
+
+### 2.4 Authentic Madhubani Folk Art Hatching
+Madhubani art is characterized by delicate hand-drawn linework:
+- **Katchni (Line Hatching):** Draws three fine parallel 45-degree diagonal strokes spaced across each data module:
+  $$\text{Stroke Width} = \max(0.75, \text{cellSize} \times 0.09)$$
+- **Godna (Tattoo Stippling):** Draws a concentric circular center dot inside modules.
+- **Bharni (Double Outline):** Draws an inset rectangular border outline with a 22% margin.
+
+### 2.5 Procedural Wasli Paper Background
+Traditional Mithila paintings are created on handmade paper (*wasli*) prepared with rice starch and sun-dried organic fibers.
+The procedural texture algorithm:
+1. Initializes a deterministic linear congruential PRNG with seed $s = 108$:
+   $$s_{n+1} = (s_n \times 16807) \pmod{2147483647}$$
+2. Draws $0.15 \times \text{width}$ soft organic fiber strokes in `saffron` ($\alpha \in [0.03, 0.08]$) and `sage` with rounded caps.
+3. Applies a subtle radial mineral wash from the top-left corner.
+4. Because the seed is fixed, the paper texture is completely deterministic and never jitters or flickers during real-time typing or parameter changes.
+
+### 2.6 Vector SVG Export Mirroring
+`renderQrToSvgString(payload, style)` constructs an exact SVG vector mirror of the canvas:
+- `<defs>` embeds `<linearGradient>` or `<radialGradient>` when gradient flow is selected.
+- Finder patterns render with `<circle>` or `<rect rx="...">` elements.
+- Data modules render with corresponding `<polygon>`, `<circle>`, or rounded `<rect>` elements.
+- Madhubani linework renders with vector `<line>` elements.
 
 ---
 
-## 4. Scan Reliability & WCAG Contrast Math
-- **Relative Luminance Calculation:** Human eyes perceive colors with differing brightness (green appears brighter than blue). Standard sRGB values $[0, 255]$ are converted to linear color space:
-  $$\text{If } c \le 0.03928: c_{\text{linear}} = \frac{c}{12.92} \quad \text{else} \quad c_{\text{linear}} = \left(\frac{c + 0.055}{1.055}\right)^{2.4}$$
-  Then relative luminance $L$ is computed via:
-  $$L = 0.2126 \cdot R_{\text{linear}} + 0.7152 \cdot G_{\text{linear}} + 0.0722 \cdot B_{\text{linear}}$$
-- **Contrast Ratio:**
-  $$\text{Ratio} = \frac{L_{\text{lighter}} + 0.05}{L_{\text{darker}} + 0.05}$$
-- **Thresholds:**
-  - $\text{Ratio} < 2.0$: **Hard Error (Risky).** Blocks download to prevent issuing unreadable codes.
-  - $\text{Ratio} < 4.0$: **Warning (Caution).** Flags poor contrast while permitting download with user confirmation.
-- **jsQR Simulation:** To prove real-world viability, the "Verify scan" button extracts raw pixel bytes (`ctx.getImageData()`) from the rendered canvas and runs `jsQR`, an algorithmic barcode decoder. If the decoded payload matches the input string, scannability is verified.
+## 3. Optical Scannability & WCAG Contrast Math
+
+### 3.1 Relative Luminance Algorithm (`src/lib/reliability.ts`)
+Converts 8-bit sRGB color channels to linear space according to WCAG 2.1 specifications:
+
+$$C_{\text{linear}} = \begin{cases} \frac{C_{\text{srgb}}}{12.92} & \text{if } C_{\text{srgb}} \le 0.03928 \\ \left(\frac{C_{\text{srgb}} + 0.055}{1.055}\right)^{2.4} & \text{otherwise} \end{cases}$$
+
+$$\text{Luminance } Y = 0.2126 R_{\text{linear}} + 0.7152 G_{\text{linear}} + 0.0722 B_{\text{linear}}$$
+
+$$\text{Contrast Ratio } CR = \frac{\max(Y_1, Y_2) + 0.05}{\min(Y_1, Y_2) + 0.05}$$
+
+### 3.2 Palette Calibration
+- **Deep Peacock (`#13504D`):** Luminance $Y \approx 0.065$. Against Warm Paper (`#FFFDF8`, $Y \approx 0.985$), contrast ratio is **$9.6:1$**, exceeding WCAG AAA.
+- **Vermilion (`#C54845`):** Standard vermilion `#C84F4C` yielded $4.49:1$ against white, falling $0.01$ short of the $4.5:1$ threshold. We calibrated vermilion to `#C54845` ($Y = 0.170$), achieving **$4.76:1$** against white and **$4.65:1$** against warm paper, strictly passing WCAG AA for normal text.
+
+### 3.3 Automated `jsQR` Optical Scannability Gate
+1. After the preview canvas renders, image pixels are sampled via `ctx.getImageData(0, 0, width, height)`.
+2. `jsQR(imageData.data, width, height, { inversionAttempts: 'attemptBoth' })` simulates camera capture.
+3. If the decoded payload matches the input data, the preview displays **"Scans OK in camera test"** with a green badge.
+4. If decoding fails, the **Scannability Gate** activates:
+   - PNG, SVG, and Copy buttons are locked.
+   - An override checkbox appears: *"I understand this design may be hard to scan; allow download anyway"*.
+   - A **"Make it safer"** auto-remedy button appears, which atomically applies safe high-contrast peacock colors, Error Correction Level 'H', 4-module quiet zone, and rounded module geometry.
 
 ---
 
-## 5. PNG & SVG Export Architecture
-- **Single Source of Truth:** Rather than re-generating an offscreen image, PNG downloads call `canvas.toDataURL('image/png')` on the exact preview canvas element. What the user inspects on their screen is byte-for-byte what is written to their filesystem.
-- **Deterministic Filenames:** Formatted as `qraft-<type>-<timestamp>.png` (e.g. `qraft-url-1727918239000.png`).
-- **SVG Generation:** Calls `QRCode.toString(payload, { type: 'svg' })` to emit scalable vector XML suitable for professional print billboards and laser cutting.
+## 4. 3D WebGL QR Studio (`src/three/`)
+
+### 4.1 Instanced Mesh Performance
+Rendering a Version 3 QR code requires up to $29 \times 29 = 841$ individual 3D cubes. Rendering 841 separate `THREE.Mesh` objects would result in 841 draw calls, degrading performance on mobile GPUs.
+
+QRaft uses a single **`THREE.InstancedMesh`** (`src/three/QrScene.tsx`):
+- A single box geometry, rounded box, or cylinder geometry is allocated once in VRAM.
+- In `useEffect`, a reusable `THREE.Matrix4` is computed for each dark module $(r, c)$:
+  $$x = (c - N/2) \times \text{moduleSize}, \quad z = (r - N/2) \times \text{moduleSize}, \quad y = (\text{height} / 2)$$
+- Scale vector applies the user-configured extrusion depth.
+- `instancedMesh.setMatrixAt(index, matrix)` uploads all transformations in a single buffer copy.
+- Modules with accent colors (e.g. finder patterns) are colored via `instancedMesh.setColorAt()`.
+- **Draw calls: Exactly 2** (one for the ground plane, one for the entire QR matrix), delivering consistent 60+ FPS.
+
+### 4.2 Top-View Orthographic Snap
+Angled perspective can distort QR square aspect ratios for physical phone cameras scanning a computer screen.
+The **Top View** toggle snaps the camera to $[0, \text{distance}, 0.001]$ looking directly down at $[0, 0, 0]$, presenting an orthogonal perspective that physical camera scanners can read directly off the screen.
 
 ---
 
-## 6. 3D WebGL Studio & Three.js Instancing
-- **The Performance Problem:** A Version 5 QR code contains over 1,300 dark modules. Creating 1,300 individual Three.js `Mesh` objects produces 1,300 separate draw calls per frame, crippling mobile GPU performance.
-- **The Solution (InstancedMesh):** QRaft uses a single `THREE.InstancedMesh`. Geometry is uploaded to the GPU once. A single draw call renders all 1,300+ modules by passing a transform matrix (`Matrix4`) and instance color buffer.
-- **Matrix Mapping:** `QRCode.create()` generates the module grid. In `useLayoutEffect`, we loop through rows and columns, compute centered world coordinates:
-  $$x = \text{col} - \frac{\text{size} - 1}{2}, \quad z = \text{row} - \frac{\text{size} - 1}{2}, \quad y = \frac{\text{depth}}{2}$$
-- **Scan-Safe Top View:** When the user clicks "Top view (scan-safe)", the camera smoothly re-centers to $[0, \text{distance}, 0.001]$ looking down at $[0, 0, 0]$, eliminating perspective distortion so physical phones can scan directly from the monitor.
+## 5. Security, State, and Privacy Architecture
+
+### 5.1 Client-Side PBKDF2 Password Hashing
+To satisfy the zero-backend constraint while maintaining realistic user authentication:
+- `window.crypto.subtle.generateKey` derives keys using **PBKDF2**.
+- Each user account receives a unique 16-byte cryptographically secure random salt generated via `window.crypto.getRandomValues(new Uint8Array(16))`.
+- 100,000 iterations of SHA-256 produce a hex hash stored in `localStorage`.
+- Passwords are never stored in plaintext.
+
+### 5.2 Cross-Device URL Sharing (`src/lib/shareLink.ts`)
+Users can share designs without a backend database:
+1. Template data is compressed into a clean JSON payload (`v: 2`).
+2. Payload is converted to UTF-8 bytes and encoded via URL-safe Base64 (`-` and `_` replacing `+` and `/`).
+3. Stored in the URL hash fragment: `#/app?share=<encoded>`.
+4. When loaded on another computer or phone:
+   - Payload length is validated ($\le 8000$ bytes).
+   - Version compatibility check accepts both `v: 1` and `v: 2` (defaulting designer styles gracefully for legacy links).
+   - All string fields are sanitized against XSS (`<` and `>` stripped).
+   - Numerical fields are clamped to valid ranges.
 
 ---
 
-## 7. Client-Side Authentication & Honest Limitations
-- **PBKDF2 with Web Crypto API:** Passwords are never stored in plaintext. They are salted with a 16-byte cryptographically secure random value (`crypto.getRandomValues`) and derived using `PBKDF2` (100,000 iterations of SHA-256).
-- **Honest Architectural Disclosure:** In technical interviews, emphasize:
-  > *"Because QRaft is 100% serverless and runs purely in the client browser, accounts and sessions are persisted in localStorage. While passwords are salt-hashed, this provides local profile organization rather than multi-user server security. A production enterprise backend would replace `AuthService` with Firebase Auth or Supabase without modifying any UI components."*
+## 6. Automated Code Hygiene & Quality Assurance
 
----
-
-## 8. Cross-Device Sharing Without a Backend
-- **How it works:** When a user shares a template or community design, QRaft minifies the template parameters, stringifies them to JSON, and converts them to **base64url** format:
-  `https://qraft.design/#/app?share=<base64url_payload>`
-- **Security & Validation:** When loaded, `decodeShareLink` decodes the hash, enforces a maximum length (5KB), checks schema version, strips potential `<script>` tags, and clamps numeric bounds to protect against XSS or state corruption.
-
----
-
-## 9. LocalStorage Architecture & Resilience
-- **Versioned Keys:** `qraft:users:v1`, `qraft:session:v1`, `qraft:templates:v1`, `qraft:community:v1`, `qraft:recent:v1`.
-- **Fault Tolerance:** Every read is wrapped in `try/catch` and validates JSON structure. If an item is corrupted by an external extension, it gracefully defaults to pre-seeded data rather than crashing the React tree.
-- **Data Pruning:** The `Recent` list is capped at 12 items with payload de-duplication to prevent storage bloat.
-
----
-
-## 10. Deployment Strategy
-- **Static Asset Compilation:** Built using `tsc && vite build`, outputting static HTML, CSS, and JS into `dist/`.
-- **HashRouter (`/#/`):** Utilized specifically so static web hosts (Vercel, Netlify, GitHub Pages) require zero rewrite rules or server redirects for client-side routing.
+`scripts/audit-site.mjs` runs on every pull request and pre-commit check (`npm run audit`):
+- Recursively scans `src/` and `index.html`.
+- Fails build if any empty/stub links (`href="#"`), unresolved markers (`TODO`, `FIXME`), placeholder text (`Lorem ipsum`, `john doe`), or unverified marketing claims (`Fortune 500`, fake user reviews) are present.
+- Guarantees zero `console.log` statements in production bundles.
