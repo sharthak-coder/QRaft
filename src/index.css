@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-saffron: #F79454;
+  --color-vermilion: #C54845;
+  --color-peacock-deep: #13504D;
+  --color-peacock: #2F7A72;
+  --color-sage: #A5B596;
+  --color-paper: #FFFDF8;
+  --color-paper-2: #F6F0E4;
+  --color-ink: #1C2B29;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -9,58 +20,66 @@
   }
 
   body {
-    @apply bg-[#F8FAFF] text-[#1F2937] font-sans antialiased overflow-x-hidden;
+    @apply bg-paper text-ink font-sans antialiased overflow-x-hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-tight;
+    @apply font-heading tracking-tight text-peacock-deep;
   }
 }
 
 /* Glassmorphism & Surface utilities */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 253, 248, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(230, 234, 242, 0.9);
+  border: 1px solid rgba(232, 222, 200, 0.85);
 }
 
 .glass-dropdown {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(246, 240, 228, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(230, 234, 242, 0.9);
+  border: 1px solid rgba(232, 222, 200, 0.9);
 }
 
-/* Subtle Dotted Grid Background */
+/* Subtle Rangoli Dotted Grid Background */
 .bg-dot-pattern {
-  background-image: radial-gradient(rgba(66, 133, 244, 0.12) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(19, 80, 77, 0.08) 1.2px, transparent 1.2px);
   background-size: 24px 24px;
 }
 
-/* Soft Google-colored Glowing Shadows */
+/* Warm Madhubani Shadows */
+.shadow-saffron-glow {
+  box-shadow: 0 10px 25px -5px rgba(247, 148, 84, 0.3), 0 8px 10px -6px rgba(247, 148, 84, 0.2);
+}
+
 .shadow-royal-glow {
-  box-shadow: 0 10px 25px -5px rgba(26, 86, 219, 0.25), 0 8px 10px -6px rgba(26, 86, 219, 0.2);
+  box-shadow: 0 10px 25px -5px rgba(247, 148, 84, 0.3), 0 8px 10px -6px rgba(247, 148, 84, 0.2);
+}
+
+.shadow-peacock-card {
+  box-shadow: 0 4px 20px -2px rgba(19, 80, 77, 0.06), 0 2px 6px -1px rgba(19, 80, 77, 0.03);
 }
 
 .shadow-google-card {
-  box-shadow: 0 4px 20px -2px rgba(27, 46, 94, 0.06), 0 2px 6px -1px rgba(27, 46, 94, 0.03);
+  box-shadow: 0 4px 20px -2px rgba(19, 80, 77, 0.06), 0 2px 6px -1px rgba(19, 80, 77, 0.03);
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar in handmade paper tones */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F4F9;
+  background: #F6F0E4;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #D5C9B3;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #B8A88E;
 }
 
 /* Accessibility: Respect Reduced Motion Preferences */

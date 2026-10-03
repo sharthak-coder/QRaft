@@ -91,5 +91,31 @@ describe('Scan Reliability Engine (reliability.ts)', () => {
       expect(report.isDense).toBe(true);
       expect(report.warnings.some((w) => w.includes('High data payload with heavy error correction'))).toBe(true);
     });
+
+    it('verifies Madhubani peacock-deep and ink achieve high WCAG contrast on paper', () => {
+      const inkOnPaper = calculateContrastRatio('#1C2B29', '#FFFDF8');
+      const peacockDeepOnPaper = calculateContrastRatio('#13504D', '#FFFDF8');
+
+      // Both must exceed 7:1 (WCAG AAA)
+      expect(inkOnPaper).toBeGreaterThan(10);
+      expect(peacockDeepOnPaper).toBeGreaterThan(8);
+    });
+
+    it('confirms saffron and sage must never be used as normal text on paper', () => {
+      const saffronOnPaper = calculateContrastRatio('#F79454', '#FFFDF8');
+      const sageOnPaper = calculateContrastRatio('#A5B596', '#FFFDF8');
+
+      // Both fail 4.5:1 AA for normal text
+      expect(saffronOnPaper).toBeLessThan(4.5);
+      expect(sageOnPaper).toBeLessThan(4.5);
+    });
+
+    it('confirms white text passes AA contrast on vermilion and peacock-deep', () => {
+      const whiteOnVermilion = calculateContrastRatio('#FFFFFF', '#C54845');
+      const whiteOnPeacockDeep = calculateContrastRatio('#FFFFFF', '#13504D');
+
+      expect(whiteOnVermilion).toBeGreaterThan(4.5);
+      expect(whiteOnPeacockDeep).toBeGreaterThan(8.0);
+    });
   });
 });
