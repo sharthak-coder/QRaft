@@ -1,4 +1,11 @@
-import { Template, QrType } from '../types';
+import {
+  Template,
+  QrType,
+  ModuleShape,
+  FinderShape,
+  GradientType,
+  MadhubaniArtStyle,
+} from '../types';
 
 export interface SharedTemplatePayload {
   v: number;
@@ -11,6 +18,12 @@ export interface SharedTemplatePayload {
     bgColor: string;
     ecl: 'L' | 'M' | 'Q' | 'H';
     margin: number;
+    moduleShape?: ModuleShape;
+    finderShape?: FinderShape;
+    gradientType?: GradientType;
+    gradientColor?: string;
+    artStyle?: MadhubaniArtStyle;
+    paintedTexture?: boolean;
   };
   threeSettings?: any;
   tags?: string[];
@@ -42,12 +55,17 @@ export function fromBase64Url(base64url: string): string {
   return new TextDecoder().decode(bytes);
 }
 
+const VALID_MODULE_SHAPES: ModuleShape[] = ['square', 'rounded', 'dot', 'diamond', 'connected'];
+const VALID_FINDER_SHAPES: FinderShape[] = ['square', 'rounded', 'circle-ring'];
+const VALID_GRADIENT_TYPES: GradientType[] = ['none', 'linear', 'radial'];
+const VALID_ART_STYLES: MadhubaniArtStyle[] = ['none', 'katchni', 'godna', 'bharni'];
+
 /**
- * Encodes a template into a compact base64url string suitable for URL hash.
+ * Encodes a template into a compact base64url string suitable for URL hash (v2 format).
  */
 export function encodeTemplateToShareLink(template: Template): string {
   const minified: SharedTemplatePayload = {
-    v: 1,
+    v: 2,
     name: template.name.slice(0, 60),
     type: template.type,
     inputs: template.inputs,
@@ -57,6 +75,12 @@ export function encodeTemplateToShareLink(template: Template): string {
       bgColor: template.style.bgColor,
       ecl: template.style.ecl,
       margin: template.style.margin,
+      moduleShape: template.style.moduleShape || 'square',
+      finderShape: template.style.finderShape || 'square',
+      gradientType: template.style.gradientType || 'none',
+      gradientColor: template.style.gradientColor,
+      artStyle: template.style.artStyle || 'none',
+      paintedTexture: Boolean(template.style.paintedTexture),
     },
     threeSettings: template.threeSettings,
     tags: (template.tags || []).slice(0, 5).map(t => t.slice(0, 20)),
@@ -70,12 +94,12 @@ export function encodeTemplateToShareLink(template: Template): string {
 }
 
 /**
- * Decodes and rigorously validates a shared template payload.
+ * Decodes and rigorously validates a shared template payload (supports v1 and v2).
  * Returns null if invalid or tampered.
  */
 export function decodeShareLink(encoded: string): SharedTemplatePayload | null {
   try {
-    if (!encoded || encoded.length > 5000) {
+    if (!encoded || encoded.length > 8000) {
       // Reject unreasonably large payloads
       return null;
     }
@@ -83,9 +107,9 @@ export function decodeShareLink(encoded: string): SharedTemplatePayload | null {
     const json = fromBase64Url(encoded);
     const parsed = JSON.parse(json);
 
-    // Structure validation
+    // Structure validation: accept v1 (legacy) and v2 (designer)
     if (!parsed || typeof parsed !== 'object') return null;
-    if (parsed.v !== 1) return null;
+    if (parsed.v !== 1 && parsed.v !== 2) return null;
 
     const validTypes: QrType[] = ['url', 'text', 'email', 'phone', 'wifi'];
     if (!validTypes.includes(parsed.type)) return null;
@@ -96,18 +120,49 @@ export function decodeShareLink(encoded: string): SharedTemplatePayload | null {
     const validEcl = ['L', 'M', 'Q', 'H'];
     if (!validEcl.includes(parsed.style.ecl)) return null;
 
+    // Validate designer style fields (v2) or default them (v1)
+    const rawModuleShape = parsed.style.moduleShape;
+    const moduleShape: ModuleShape = VALID_MODULE_SHAPES.includes(rawModuleShape)
+      ? rawModuleShape
+      : 'square';
+
+    const rawFinderShape = parsed.style.finderShape;
+    const finderShape: FinderShape = VALID_FINDER_SHAPES.includes(rawFinderShape)
+      ? rawFinderShape
+      : 'square';
+
+    const rawGrad = parsed.style.gradientType;
+    const gradientType: GradientType = VALID_GRADIENT_TYPES.includes(rawGrad)
+      ? rawGrad
+      : 'none';
+
+    const rawArt = parsed.style.artStyle;
+    const artStyle: MadhubaniArtStyle = VALID_ART_STYLES.includes(rawArt)
+      ? rawArt
+      : 'none';
+
+    const gradientColor = parsed.style.gradientColor
+      ? String(parsed.style.gradientColor).slice(0, 9)
+      : undefined;
+
     // Sanitize values
     const sanitized: SharedTemplatePayload = {
-      v: 1,
+      v: parsed.v,
       name: parsed.name.slice(0, 60).replace(/[<>]/g, ''),
       type: parsed.type,
       inputs: parsed.inputs && typeof parsed.inputs === 'object' ? parsed.inputs : {},
       style: {
         size: Math.min(Math.max(Number(parsed.style.size) || 300, 128), 1024),
-        fgColor: String(parsed.style.fgColor || '#000000').slice(0, 9),
-        bgColor: String(parsed.style.bgColor || '#ffffff').slice(0, 9),
+        fgColor: String(parsed.style.fgColor || '#13504D').slice(0, 9),
+        bgColor: String(parsed.style.bgColor || '#FFFDF8').slice(0, 9),
         ecl: parsed.style.ecl,
         margin: Math.min(Math.max(Number(parsed.style.margin) || 4, 0), 8),
+        moduleShape,
+        finderShape,
+        gradientType,
+        gradientColor,
+        artStyle,
+        paintedTexture: Boolean(parsed.style.paintedTexture),
       },
       threeSettings: parsed.threeSettings,
       tags: Array.isArray(parsed.tags)

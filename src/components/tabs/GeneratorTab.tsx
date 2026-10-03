@@ -13,6 +13,7 @@ export const GeneratorTab: React.FC = () => {
     setInputField,
     style,
     setStyleField,
+    updateStyle,
     activePresetId,
     applyPreset,
     touched,
@@ -61,6 +62,7 @@ export const GeneratorTab: React.FC = () => {
             reliability={reliability}
             verification={verification}
             onVerificationChange={setVerification}
+            onUpdateStyle={updateStyle}
           />
         </div>
       </div>

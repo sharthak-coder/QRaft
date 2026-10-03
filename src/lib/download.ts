@@ -1,5 +1,5 @@
-import QRCode from 'qrcode';
 import { QrType, QrStyle } from '../types';
+import { renderQrToSvgString } from './qrRenderer';
 
 /**
  * Generates standardized filename formatted as qraft-<type>-<timestamp>.<ext>
@@ -24,7 +24,7 @@ export function downloadCanvasAsPng(canvas: HTMLCanvasElement, type: QrType): vo
 }
 
 /**
- * Generates and downloads an SVG vector file of the QR code.
+ * Generates and downloads an SVG vector file of the QR code matching designer styles.
  */
 export async function downloadAsSvg(
   payload: string,
@@ -32,16 +32,7 @@ export async function downloadAsSvg(
   type: QrType
 ): Promise<void> {
   const filename = getExportFilename(type, 'svg');
-  const svgString = await QRCode.toString(payload, {
-    type: 'svg',
-    errorCorrectionLevel: style.ecl,
-    margin: style.margin,
-    color: {
-      dark: style.fgColor,
-      light: style.bgColor,
-    },
-    width: style.size,
-  });
+  const svgString = renderQrToSvgString(payload, style);
 
   const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);

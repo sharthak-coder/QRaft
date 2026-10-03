@@ -37,12 +37,26 @@ export interface QrInputsMap {
 
 export type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H';
 
+export type ModuleShape = 'square' | 'rounded' | 'dot' | 'diamond' | 'connected';
+export type FinderShape = 'square' | 'rounded' | 'circle-ring';
+export type GradientType = 'none' | 'linear' | 'radial';
+export type MadhubaniArtStyle = 'none' | 'katchni' | 'godna' | 'bharni';
+
 export interface QrStyle {
   size: number; // 128 - 1024 px
   fgColor: string;
   bgColor: string;
   ecl: ErrorCorrectionLevel;
   margin: number; // 0 - 8 modules
+  // Designer extensions
+  moduleShape?: ModuleShape;
+  finderShape?: FinderShape;
+  gradientType?: GradientType;
+  gradientColor?: string;
+  artStyle?: MadhubaniArtStyle;
+  paintedTexture?: boolean;
+  bgImage?: string | null;
+  bgImageOpacity?: number;
 }
 
 export interface Preset {

@@ -11,7 +11,17 @@ export class RecentStore {
       if (!data) return [];
       const parsed = JSON.parse(data);
       if (!Array.isArray(parsed)) return [];
-      return parsed;
+      return parsed.map((item: any) => ({
+        ...item,
+        style: {
+          moduleShape: 'square',
+          finderShape: 'square',
+          gradientType: 'none',
+          artStyle: 'none',
+          paintedTexture: false,
+          ...(item.style || {}),
+        },
+      }));
     } catch {
       return [];
     }

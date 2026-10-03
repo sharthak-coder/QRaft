@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import QRCode from 'qrcode';
 import {
   QrType,
   QrStyle,
   ReliabilityReport,
   ScanVerificationResult,
 } from '../../types';
+import { renderQrToCanvas } from '../../lib/qrRenderer';
 import { verifyCanvasScan } from '../../lib/scanVerify';
 import {
   downloadCanvasAsPng,
@@ -28,6 +28,7 @@ import {
   Check,
   Scan,
   RefreshCw,
+  Wand2,
 } from 'lucide-react';
 
 interface QrPreviewProps {
@@ -41,6 +42,7 @@ interface QrPreviewProps {
   verification: ScanVerificationResult | null;
   onVerificationChange: (result: ScanVerificationResult) => void;
   onTabRequest?: (tab: string) => void;
+  onUpdateStyle?: (updates: Partial<QrStyle>) => void;
 }
 
 export const QrPreview: React.FC<QrPreviewProps> = ({
@@ -53,6 +55,7 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
   reliability,
   verification,
   onVerificationChange,
+  onUpdateStyle,
 }) => {
   const { user, isAuthenticated } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -63,7 +66,7 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
   const [exportWithFrame, setExportWithFrame] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Debounced QR Canvas Render
+  // Debounced Designer QR Canvas Render with automated jsQR decode
   useEffect(() => {
     let active = true;
     const canvas = canvasRef.current;
@@ -72,26 +75,26 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
       return;
     }
 
-    const timer = setTimeout(() => {
-      QRCode.toCanvas(
-        canvas,
-        payload,
-        {
-          width: style.size,
-          margin: style.margin,
-          color: {
-            dark: style.fgColor,
-            light: style.bgColor,
-          },
-          errorCorrectionLevel: style.ecl,
-        },
-        (err) => {
-          if (err && active) {
-            console.error('QR generation error:', err);
-          }
+    const timer = setTimeout(async () => {
+      try {
+        const result = await renderQrToCanvas(canvas, payload, style);
+        if (!active) return;
+
+        onVerificationChange({
+          checked: true,
+          success: result.decoded,
+          match: result.decoded,
+          decodedText: result.decodedText,
+          message: result.decoded
+            ? 'Scans OK in camera test (verified with jsQR engine).'
+            : 'Could not be decoded in camera test. Contrast, quiet zone, or module shape may need adjustment.',
+        });
+      } catch (err) {
+        if (active) {
+          console.error('QR rendering error:', err);
         }
-      );
-    }, 150);
+      }
+    }, 120);
 
     return () => {
       active = false;
@@ -99,7 +102,7 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
     };
   }, [payload, isValid, style]);
 
-  // Handle Verify Scan with jsQR
+  // Handle Manual Verify Scan with jsQR
   const handleVerifyScan = () => {
     if (!canvasRef.current || !isValid) return;
     setIsVerifying(true);
@@ -107,7 +110,25 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
       const res = verifyCanvasScan(canvasRef.current!, payload);
       onVerificationChange(res);
       setIsVerifying(false);
-    }, 200);
+    }, 150);
+  };
+
+  // Auto-remedy "Make it safer" handler
+  const handleMakeItSafer = () => {
+    if (!onUpdateStyle) return;
+    onUpdateStyle({
+      fgColor: '#13504D',
+      bgColor: '#FFFDF8',
+      ecl: 'H',
+      margin: 4,
+      moduleShape: 'rounded',
+      finderShape: 'rounded',
+      gradientType: 'none',
+      artStyle: 'none',
+      paintedTexture: false,
+      bgImage: null,
+    });
+    setDownloadAnyway(false);
   };
 
   // Helper to compose framed canvas if exportWithFrame is true
@@ -127,7 +148,7 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
     ctx.fillStyle = '#FFFDF8';
     ctx.fillRect(0, 0, offscreen.width, offscreen.height);
 
-    // Draw outer double border
+    // Draw outer double border in Madhubani palette
     ctx.strokeStyle = '#13504D';
     ctx.lineWidth = 3;
     ctx.strokeRect(12, 12, offscreen.width - 24, offscreen.height - 24);
@@ -140,6 +161,12 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
 
     return offscreen;
   };
+
+  // Scannability Gate: require both reliability score and verified scan unless overridden
+  const isScanVerified = verification ? verification.match : true;
+  const hasHardErrors = !isValid || !reliability.canDownload;
+  const hasScannabilityIssue = !isScanVerified || !reliability.canDownload;
+  const canProceedWithDownload = isValid && (!hasScannabilityIssue || downloadAnyway);
 
   // Actions
   const handleDownloadPng = () => {
@@ -184,11 +211,6 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
     setSaveFeedback('Template saved to "My Templates"!');
     setTimeout(() => setSaveFeedback(null), 3500);
   };
-
-  // Download permission logic
-  const hasHardErrors = !isValid || !reliability.canDownload;
-  const hasWarningsOnly = isValid && reliability.warnings.length > 0 && reliability.canDownload;
-  const canProceedWithDownload = isValid && (reliability.canDownload || downloadAnyway);
 
   return (
     <div className="w-full space-y-4">
@@ -252,21 +274,67 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
           </label>
         </div>
 
-        {/* Verification result pill */}
+        {/* Verification Result Pill (Automated jsQR scannability test) */}
         {verification && (
           <div
-            className={`w-full p-2.5 rounded-xl border text-xs font-medium flex items-center gap-2 mb-2 ${
+            className={`w-full p-2.5 rounded-xl border text-xs font-medium flex items-center justify-between gap-2 mb-2 ${
               verification.match
                 ? 'bg-peacock/15 border-peacock/30 text-peacock-deep'
-                : 'bg-saffron-50 border-saffron-300 text-ink'
+                : 'bg-vermilion-50 border-vermilion/30 text-vermilion'
             }`}
           >
-            {verification.match ? (
-              <Check className="w-4 h-4 text-peacock flex-shrink-0" />
-            ) : (
-              <AlertTriangle className="w-4 h-4 text-vermilion flex-shrink-0" />
+            <div className="flex items-center gap-2 text-left">
+              {verification.match ? (
+                <Check className="w-4 h-4 text-peacock flex-shrink-0" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-vermilion flex-shrink-0" />
+              )}
+              <span className="line-clamp-2">{verification.message}</span>
+            </div>
+
+            {/* "Make it safer" Auto-Remedy Button */}
+            {!verification.match && onUpdateStyle && (
+              <button
+                type="button"
+                onClick={handleMakeItSafer}
+                className="flex-shrink-0 px-2.5 py-1 bg-vermilion text-white text-[11px] font-heading font-bold rounded-lg hover:bg-vermilion-500 shadow-sm flex items-center gap-1 transition-all"
+                title="Automatically fix contrast, shapes, and error correction for 100% scan reliability"
+              >
+                <Wand2 className="w-3 h-3" />
+                <span>Make it safer</span>
+              </button>
             )}
-            <span className="line-clamp-2 text-left">{verification.message}</span>
+          </div>
+        )}
+
+        {/* Scannability Warning & Override */}
+        {hasScannabilityIssue && isValid && (
+          <div className="w-full p-2.5 bg-saffron-50 border border-saffron-300 rounded-xl mb-2 text-left">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-peacock-deep">
+                Scannability check failed: camera decode was not verified.
+              </span>
+              {onUpdateStyle && (
+                <button
+                  type="button"
+                  onClick={handleMakeItSafer}
+                  className="text-[11px] font-bold text-vermilion underline hover:text-vermilion-500"
+                >
+                  Auto-remedy
+                </button>
+              )}
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer mt-1.5 pt-1.5 border-t border-saffron-200">
+              <input
+                type="checkbox"
+                checked={downloadAnyway}
+                onChange={(e) => setDownloadAnyway(e.target.checked)}
+                className="rounded border-paper-border text-peacock-deep focus:ring-peacock-deep"
+              />
+              <span className="text-[11px] text-ink font-medium">
+                I understand this design may be hard to scan; allow download anyway
+              </span>
+            </label>
           </div>
         )}
 
@@ -290,7 +358,7 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
             onClick={handleDownloadSvg}
             disabled={!canProceedWithDownload}
             className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-paper border border-peacock/30 hover:bg-paper-2 text-peacock-deep font-heading font-bold text-xs shadow-sm transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-            title="Download Vector SVG"
+            title="Download Vector SVG matching designer styles"
           >
             <FileCode className="w-3.5 h-3.5 text-peacock-deep" />
             <span>SVG</span>
@@ -314,7 +382,7 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
             onClick={handleVerifyScan}
             disabled={!isValid || isVerifying}
             className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-peacock/10 border border-peacock/25 text-peacock-deep hover:bg-peacock/20 font-heading font-bold text-xs shadow-sm transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-            title="Simulate camera decode with jsQR"
+            title="Simulate optical camera decode with jsQR"
           >
             {isVerifying ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-peacock-deep" />
@@ -417,27 +485,22 @@ export const QrPreview: React.FC<QrPreviewProps> = ({
             </p>
           )}
 
-          {/* Warning override toggle */}
-          {hasWarningsOnly && (
-            <div className="pt-2 flex items-center justify-between border-t border-paper-border">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={downloadAnyway}
-                  onChange={(e) => setDownloadAnyway(e.target.checked)}
-                  className="rounded border-paper-border text-peacock-deep focus:ring-peacock-deep"
-                />
-                <span className="text-xs text-ink font-medium">
-                  Acknowledge warnings & allow export
-                </span>
-              </label>
-            </div>
-          )}
-
           {hasHardErrors && (
-            <p className="text-[11px] font-semibold text-vermilion pt-1">
-              Export is locked until contrast errors are resolved to prevent producing unreadable codes.
-            </p>
+            <div className="pt-2 flex items-center justify-between border-t border-paper-border">
+              <p className="text-[11px] font-semibold text-vermilion">
+                Low contrast detected. Physical cameras may struggle to read this.
+              </p>
+              {onUpdateStyle && (
+                <button
+                  type="button"
+                  onClick={handleMakeItSafer}
+                  className="px-2.5 py-1 bg-vermilion text-white text-[11px] font-heading font-bold rounded-lg hover:bg-vermilion-500 shadow-sm flex items-center gap-1"
+                >
+                  <Wand2 className="w-3 h-3" />
+                  <span>Fix with Safe Palette</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

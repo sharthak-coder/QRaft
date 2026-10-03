@@ -31,17 +31,23 @@ const INITIAL_INPUTS: QrInputsMap = {
 
 const INITIAL_STYLE: QrStyle = {
   size: 320,
-  fgColor: '#1A56DB', // Google royal blue
-  bgColor: '#FFFFFF',
-  ecl: 'M',
+  fgColor: '#13504D',
+  bgColor: '#FFFDF8',
+  ecl: 'H',
   margin: 4,
+  moduleShape: 'connected',
+  finderShape: 'rounded',
+  gradientType: 'linear',
+  gradientColor: '#2F7A72',
+  artStyle: 'none',
+  paintedTexture: false,
 };
 
 export function useQrStudio() {
   const [activeType, setActiveType] = useState<QrType>('url');
   const [inputs, setInputs] = useState<QrInputsMap>(INITIAL_INPUTS);
   const [style, setStyle] = useState<QrStyle>(INITIAL_STYLE);
-  const [activePresetId, setActivePresetId] = useState<string | null>('google');
+  const [activePresetId, setActivePresetId] = useState<string | null>('peacock');
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [verification, setVerification] = useState<ScanVerificationResult | null>(null);
 
@@ -70,6 +76,13 @@ export function useQrStudio() {
     },
     []
   );
+
+  // Update multiple styling attributes atomically
+  const updateStyle = useCallback((updates: Partial<QrStyle>) => {
+    setStyle((prev) => ({ ...prev, ...updates }));
+    setActivePresetId(null);
+    setVerification(null);
+  }, []);
 
   // Apply a curated preset
   const applyPreset = useCallback((presetId: string) => {
@@ -133,6 +146,7 @@ export function useQrStudio() {
     setInputField,
     style,
     setStyleField,
+    updateStyle,
     activePresetId,
     applyPreset,
     touched,

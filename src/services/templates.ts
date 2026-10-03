@@ -14,7 +14,17 @@ export class TemplateStore {
       }
       const parsed = JSON.parse(data);
       if (!Array.isArray(parsed)) return SEED_TEMPLATES;
-      return parsed;
+      return parsed.map((item: any) => ({
+        ...item,
+        style: {
+          moduleShape: 'square',
+          finderShape: 'square',
+          gradientType: 'none',
+          artStyle: 'none',
+          paintedTexture: false,
+          ...(item.style || {}),
+        },
+      }));
     } catch {
       return SEED_TEMPLATES;
     }
