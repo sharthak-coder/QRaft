@@ -1,125 +1,124 @@
-# QRaft — Comprehensive Testing Strategy & Verification Guide
+# QRaft: Comprehensive Testing & Quality Assurance Documentation
 
-This document details the multi-layered testing strategy used in **QRaft**, spanning automated unit tests, static code hygiene audits, cross-device compatibility checks, and physical optical scanner verification.
-
----
-
-## 1. Quality Assurance Architecture
-
-```
-                  ┌─────────────────────────────────────┐
-                  │      QRaft Quality Architecture     │
-                  └──────────────────┬──────────────────┘
-                                     │
-         ┌───────────────────────────┼───────────────────────────┐
-         │                           │                           │
-         ▼                           ▼                           ▼
-[ 55 Unit Tests ]         [ Automated Audit ]        [ Physical Scan Protocol ]
-• payload.test.ts         • scripts/audit-site.mjs   • iOS Camera App (Apple)
-• reliability.test.ts     • Zero placeholder text    • Google Lens (Android)
-• validation.test.ts      • Zero stub links          • High angle / low light
-• shareLink.test.ts       • Zero fake social proof   • Printed paper tests
-• qrRenderer.test.ts      • Zero console.log
-• crypto.test.ts
-```
+This document catalogs the automated testing suite and hygiene auditing mechanisms implemented in QRaft for the GDG on Campus SRM IST submission.
 
 ---
 
-## 2. Automated Test Suites (55 Tests Passing)
+## 1. Test Suite Overview
 
-QRaft runs on **Vitest 2.1** with native ESM module resolution and `@testing-library/react`.
+QRaft uses **Vitest** for fast, deterministic unit and integration testing. All tests run in JSDOM / Node environments with zero flaky timeouts.
 
-### 2.1 Payload Generator Engine (`src/test/payload.test.ts` - 7 tests)
-- Tests payload string generation for all 5 supported QR types.
-- Verifies `mailto:` URL encoding of subject and body query parameters.
-- Validates `WIFI:T:WPA;S:MyNet;P:pass;;` formatting and special character escaping (`\:`, `\;`, `\\`).
-- Tests phone dialer format `tel:+919876543210`.
+- **Total Test Files:** 11
+- **Total Tests:** 93
+- **Test Pass Rate:** 100% (93 / 93 passing)
+- **Execution Time:** $\approx 1.5$ seconds
 
-### 2.2 Scan Reliability & Contrast Engine (`src/test/reliability.test.ts` - 12 tests)
-- Verifies sRGB to linear luminance transformation according to WCAG 2.1 standards.
-- Tests contrast ratio calculation against known standards (Black on White = 21:1, White on White = 1:1).
-- Validates that contrast < 2.0:1 sets `score: 'risky'` and locks export permissions (`canDownload: false`).
-- Verifies warnings triggered for inverted color schemes, small export dimensions (<160px), thin margins (<2 modules), and dense data payloads with ECL 'H'.
-- Confirms that the Madhubani palette tokens pass WCAG AA:
-  - Deep Peacock (`#13504D`) on Warm Paper (`#FFFDF8`): **9.6:1** (passes AAA)
-  - Calibrated Vermilion (`#C54845`) on White: **4.76:1** (passes AA)
+```
+ RUN  v2.1.9 E:/QRaft
 
-### 2.3 Input Validation Engine (`src/test/validation.test.ts` - 8 tests)
-- Tests RFC-compliant URL validation (accepting `https://`, `http://`, domain names, query params; rejecting invalid protocols).
-- Tests email address validation and field length limits.
-- Tests phone number format validation.
-- Validates Wi-Fi password requirements (minimum 8 characters for WPA, exactly 5 or 13 ascii characters for WEP).
+ ✓ src/test/payload.test.ts (7 tests)
+ ✓ src/test/validation.test.ts (8 tests)
+ ✓ src/test/reliability.test.ts (12 tests)
+ ✓ src/test/shareLink.test.ts (6 tests)
+ ✓ src/test/contrast.test.ts (5 tests)
+ ✓ src/test/migration.test.ts (16 tests)
+ ✓ src/test/qrRenderer.test.ts (12 tests)
+ ✓ src/test/motionBackground.test.tsx (3 tests)
+ ✓ src/test/scenic3d.test.ts (9 tests)
+ ✓ src/test/crypto.test.ts (10 tests)
+ ✓ src/test/a11y-responsive.test.tsx (5 tests)
 
-### 2.4 Cross-Device Share Link Engine (`src/test/shareLink.test.ts` - 6 tests)
-- Tests URL-safe Base64URL encoding with emoji and multi-byte UTF-8 Unicode characters.
-- Tests encoding of v2 templates carrying designer options (`moduleShape`, `finderShape`, `gradientType`, `gradientColor`, `artStyle`, `paintedTexture`).
-- Tests **backward compatibility**: legacy v1 payloads deserialize cleanly and receive safe default designer attributes without breaking.
-- Tests rejection of malformed base64 strings and unsupported future payload versions (`v: 99`).
-- Verifies HTML/XSS sanitization (stripping `<script>`, `<img>`, etc.) from template titles and author fields.
+ Test Files  11 passed (11)
+      Tests  93 passed (93)
+```
 
-### 2.5 Designer QR Renderer Engine (`src/test/qrRenderer.test.ts` - 12 tests)
-- **Geometry Recognition:** Validates that `isFinderPattern` correctly identifies all cells in the 7x7 corner finders (Top-Left, Top-Right, Bottom-Left) and rejects internal data cells.
-- **Timing Tracks:** Validates that row 6 and column 6 are correctly flagged as timing tracks outside finders.
-- **Quiet Separator Detection:** Confirms that 1-module borders around finders are identified as protected quiet zones.
-- **Vector SVG Generation:** Verifies that generated SVG contains valid XML, proper `viewBox`, correct color fills, and:
-  - Embeds `<linearGradient>` or `<radialGradient>` when gradient flow is enabled.
-  - Generates `<circle>` elements for circular concentric finder eyes.
-  - Generates vector `<line>` elements for Madhubani Katchni hatching.
-  - Generates vector `<circle>` elements for Godna stippling dots.
-- **Canvas Rendering:** Verifies HTMLCanvasElement rendering in DOM environments with connected module flow and procedural wasli paper texture.
+---
 
-### 2.6 Cryptography & Authentication Engine (`src/test/crypto.test.ts` - 10 tests)
-- Tests PBKDF2 key derivation using SHA-256 with 100,000 iterations.
-- Validates that two registrations with identical passwords generate unique hashes due to 16-byte random salts.
-- Tests client-side registration, login verification, duplicate email rejection, session storage persistence, and logout clearing.
-- Tests pre-seeded demo user creation via `AuthService.loginDemo()`.
+## 2. Detailed Test Suite Inventory
+
+### 2.1 `src/test/contrast.test.ts` (5 tests)
+- Enforces body text is `indigo-ink` on `rice` ($> 4.5:1$, achieves AAA $\approx 11:1$).
+- Strictly forbids `haldi` as text on `rice` ($\approx 2.17:1$ fails AA).
+- Guarantees text on `haldi` fill is `indigo-ink` ($\ge 4.5:1$, passes AA $\approx 5.05:1$).
+- Verifies white/rice text on `sindoor`, `leaf`, and `indigo-ink` passes AAA/AA.
+- Verifies procedural paper texture darkest fiber maintains WCAG AA contrast.
+
+### 2.2 `src/test/migration.test.ts` (16 tests)
+- `migrateColor`: Maps legacy hex codes (`#13504D`, `#C54845`, `#F79454`, `#2F7A72`, `#FFFDF8`) to folk tokens.
+- `migrateQrStyle`: Upgrades legacy style objects with safe defaults and migrated pigment tokens.
+- `TemplateStore`: Migrates legacy `v1` templates in localStorage to `v2` on load.
+- `RecentStore`: Migrates legacy `v1` recents in localStorage to `v2` on load.
+- `decodeShareLink`: Backward-compatible decoding of legacy v1/v2 share links with automatic pigment migration.
+- `getPresetById`: Resolves legacy preset IDs (`peacock`, `saffron-sun`, `lotus-pond`, `terracotta`, `godna-stipple`) to folk presets.
+- **WCAG Contrast Invariant:** Asserts that every preset in `PRESETS` meets or exceeds the $4.5:1$ contrast requirement.
+
+### 2.3 `src/test/scenic3d.test.ts` (9 tests)
+- Validates all 4 scenic theme definitions (`shinto-alpine`, `mithila-grove`, `floating-isle`, `classic-blocks`) have complete palettes.
+- Generates voxels within strict budget caps ($< 40,000$ desktop / $< 15,000$ mobile).
+- Enforces flat scan invariants at $t=0$ (base modules sit at $y=0.05$ with $S_y=0.05$; upper tiers collapse to $S_y=0$).
+- Verifies voxel elevation in scenic state ($t=1$).
+- Verifies finder centers receive distinct landmark highlighting.
+- Optical scannability test confirming 100% canvas readability.
+
+### 2.4 `src/test/motionBackground.test.tsx` (3 tests)
+- Renders fixed background canvas with `aria-hidden="true"` and `pointer-events-none`.
+- Renders cleanly on workspace routes with subdued peripheral styling.
+- Handles window resize and updates canvas metrics gracefully.
+
+### 2.5 `src/test/a11y-responsive.test.tsx` (5 tests)
+- Enforces minimum 16px (`text-base`) font size on text inputs to eliminate mobile auto-zoom.
+- Verifies $\ge 44$px touch targets and accessible labels on type selector buttons.
+- Comprehensive WCAG contrast enforcement across all primary color pairings.
+- Verifies `role="alert"` with `aria-live="polite"` on form field validation errors.
+
+### 2.6 `src/test/qrRenderer.test.ts` (12 tests)
+- Finder and timing pattern geometric detection.
+- Finder separator module recognition.
+- SVG export with Madhubani `katchni` hatching and `godna` stippling.
+- HTML5 canvas rendering and optical verification.
+
+### 2.7 `src/test/payload.test.ts` (7 tests)
+- URL prefix normalization (`http://` / `https://`).
+- Plain text formatting.
+- `mailto:` URI formatting with subject and message escaping.
+- `tel:` dialing URI formatting.
+- `WIFI:` MECARD formatting with special character escaping.
+
+### 2.8 `src/test/validation.test.ts` (8 tests)
+- Validates URL formats, emails, telephone numbers, and Wi-Fi credentials.
+- Checks QR code payload length limits against error correction capacity.
+
+### 2.9 `src/test/reliability.test.ts` (12 tests)
+- Relative luminance and contrast ratio calculations.
+- QR density scoring based on payload length and ECL.
+- Reliability grading (`good`, `caution`, `risky`).
+- Inverted colors and low-margin warnings.
+
+### 2.10 `src/test/shareLink.test.ts` (6 tests)
+- UTF-8 safe base64url encoding and decoding.
+- v2 template share link serialization and deserialization.
+- Graceful decoding of legacy v1 payloads.
+- Rejection of corrupted, oversized, or malicious payloads.
+- XSS and HTML injection sanitization on template names and authors.
+
+### 2.11 `src/test/crypto.test.ts` (10 tests)
+- PBKDF2 Web Crypto password hashing with 100,000 iterations.
+- Unique 16-byte cryptographically secure random salts.
+- Deterministic password verification.
 
 ---
 
 ## 3. Automated Authenticity & Hygiene Audit (`scripts/audit-site.mjs`)
 
-Executed via `npm run audit`:
-- Recursively inspects all files in `src/` and `index.html`.
-- Fails the build if:
-  1. Any `href="#"` or empty `href=""` stub links exist.
-  2. Any `TODO`, `FIXME`, or `HACK` comments remain in code.
-  3. Any placeholder copy (`Lorem ipsum`, `john doe`, `placeholder text`) exists.
-  4. Any unverified marketing buzzwords (`Fortune 500`, `trusted by 10,000+`, etc.) are detected.
-  5. Any stray `console.log()` calls remain in production code.
+QRaft includes a strict custom static analysis script that scans the codebase for submission quality:
+- **Stub link detection:** Flags any `href="#"` or `href=""`.
+- **Development markers:** Flags unresolved `TODO`, `FIXME`, or `HACK` comments.
+- **Placeholder copy:** Flags `lorem ipsum`, `foo`, `bar`, `john doe`.
+- **Unsubstantiated claims:** Flags fake marketing buzzwords like `Fortune 500` or `Trusted by 10,000+`.
+- **Stray console logs:** Detects and flags unintended `console.log` statements in production code.
 
----
-
-## 4. Physical Optical Scanner Verification Protocol
-
-To verify real-world scannability beyond the simulated `jsQR` engine, follow this physical device protocol:
-
-### Test Matrix
-
-| Condition | Target Specification | Tested Result |
-|---|---|---|
-| **Distance** | 15 cm – 45 cm from screen | Immediate decode within 150ms |
-| **Angle (Tilt)** | 0° to 35° off-axis tilt | Decodes reliably |
-| **Ambient Lighting** | Low indoor light (100 lux) to bright daylight (1000 lux) | Decodes without glare issues |
-| **Print Output** | Standard 300 DPI laser print on A4 paper | Clean contrast; instant decode |
-| **Scanner: iOS** | Apple Camera App (iOS 17+) | Instant yellow URL pill detection |
-| **Scanner: Android** | Google Lens / Native Camera (Android 14+) | Instant tap-to-open badge |
-
-### Guidelines for Safe Physical Deployment
-1. For physical merchandise or outdoor print runs, use **Error Correction Level 'Q' or 'H'** to withstand surface dirt or scuffs.
-2. Maintain at least a **2-to-4 module quiet zone margin** to prevent background graphics from merging with corner finders.
-3. For physical screen captures of 3D models, switch to the **"Top View (Scan-Safe)"** angle to eliminate perspective skew.
-
----
-
-## 5. Verification Commands
-
+Run the audit script:
 ```bash
-# Run all 55 unit tests
-npm test
-
-# Run authenticity and hygiene audit
 npm run audit
-
-# Run TypeScript compile and bundle build
-npm run build
 ```
+*Current result: 100% PASS (0 issues found).*

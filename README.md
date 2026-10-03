@@ -1,212 +1,163 @@
-# QRaft — Madhubani Folk Art 2D & 3D QR Designer
+# QRaft — Madhubani Folk Art 2D & Scenic 3D World QR Designer
 
-[![GDG Submission](https://img.shields.io/badge/GDG%20on%20Campus-SRM%20IST%20Recruitment-13504D?style=for-the-badge&logo=google&logoColor=white)](https://gdg.community.dev/srm-ist)
-[![React 18](https://img.shields.io/badge/React-18.3-F79454?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript Strict](https://img.shields.io/badge/TypeScript-Strict%20Mode-C54845?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Three.js](https://img.shields.io/badge/Three.js-WebGL%203D-1C2B29?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-2F7A72?style=for-the-badge)](LICENSE)
+[![GDG Submission](https://img.shields.io/badge/GDG%20on%20Campus-SRM%20IST%20Recruitment-1A3644?style=for-the-badge&logo=google&logoColor=white)](https://gdg.community.dev/srm-ist)
+[![React 18](https://img.shields.io/badge/React-18.3-D99B26?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript Strict](https://img.shields.io/badge/TypeScript-Strict%20Mode-A62B2B?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Three.js](https://img.shields.io/badge/Three.js-Scenic%203D%20World-2D5A3E?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-1A3644?style=for-the-badge)](LICENSE)
 
-> **QRaft** is an authentic, privacy-first QR code generator and 3D WebGL designer inspired by the traditional **Mithila Madhubani folk art** of Bihar, India. Designed and built from scratch with zero backend dependencies, it combines ancient artistic heritage with modern web engineering: real-time WCAG AA/AAA contrast calculations, automated optical `jsQR` scannability gating, 2D designer module shapes with Madhubani line hatching, and 16 GPU-instanced 3D WebGL themes.
+> **QRaft** is an authentic, privacy-first QR code generator and **Scenic 3D World** diorama designer inspired by the centuries-old living traditions of **Mithila (Madhubani) folk art** from Bihar, India. Designed and engineered client-side with zero tracking and zero backend dependencies, QRaft bridges ancient cultural craftsmanship with modern web graphics: natural folk pigment tokens, procedural handmade khadi paper textures, an interactive HTML5 motion canvas, real-time WCAG contrast checking, automated optical `jsQR` scannability gating, and an instanced procedural 3D voxel diorama that seamlessly morphs between camera-ready 2D Scan Mode and a 45-degree isometric 3D Scenic Orbit.
 
 **Technical Recruitment Submission:** GDG on Campus, SRM Institute of Science and Technology (Technical Domain, Frontend: *"QR Code Generator & Designer"*).
 
 ---
 
-## 🔗 Live Demo & Single Source of Truth
-- **Single Source of Truth:** All project, author, and college metadata is configured in [`src/config/site.ts`](src/config/site.ts).
-- **Deployment URL:** Check `siteConfig.author.deploymentUrl` in `src/config/site.ts`.
-- **Manual Setup Checklist:** See [`docs/MANUAL_TODO.md`](docs/MANUAL_TODO.md) for student submission steps.
+## 🎨 Authentic Mithila Folk Art Design System
 
----
+QRaft celebrates India's geometric folk art heritage through 5 carefully calibrated natural pigment tokens:
 
-## 🎨 Madhubani Folk Art Design System
-
-QRaft moves away from generic corporate aesthetics to celebrate India's rich geometric folk art tradition:
-
-| Token | Hex | WCAG Role & Usage |
-|---|---|---|
-| `peacock-deep` | `#13504D` | Primary brand ink; 9.6:1 contrast against warm paper (passes AAA) |
-| `peacock` | `#2F7A72` | Secondary accent & cool water tones; 4.7:1 contrast (passes AA) |
-| `vermilion` | `#C54845` | Primary action buttons & sindoor accents; 4.76:1 with white text (calibrated AA) |
-| `saffron` | `#F79454` | Warm turmeric highlights, borders, and badges (never text on light bg) |
-| `sage` | `#A5B596` | Organic herbal accents, leaf vines, and secondary fills |
-| `paper` | `#FFFDF8` | Base handmade wasli paper background |
-| `paper-2` | `#F6F0E4` | Secondary parchment container fill with subtle warm texture |
-| `ink` | `#1C2B29` | Carbon soot black for sharp body copy & universal compatibility |
+| Token | Hex | Folk Pigment Source | Role & WCAG Ratio |
+|---|---|---|---|
+| `indigo-ink` | `#1A3644` | Natural indigo plant vat dye (*Indigofera tinctoria*) | Primary brand ink, text, headings, outlines; **11:1 AAA** contrast on rice |
+| `haldi` | `#D99B26` | Stone-ground turmeric rhizome (*Curcuma longa*) | Accents, highlights, active fills; **never used as text on rice** (~2.17:1 fails AA) |
+| `sindoor` | `#A62B2B` | Sacred vermilion cinnabar mineral (*Hingula*) | Primary action buttons, motifs, errors; **> 4.5:1 AA** with white |
+| `leaf` | `#2D5A3E` | Crushed wood-apple tree leaves (*Aegle marmelos*) | Nature motifs, verified success badges, secondary actions; **> 4.5:1 AA** |
+| `rice` | `#F6F1E8` | Ground rice paste (*Aripana*) on sun-dried paper | Warm handmade wasli paper background with organic canvas grain |
+| `rice-panel` | `#EFE8D9` | Derived tint (rice paper mixed with subtle ink wash) | Card and container surfaces providing soft visual separation |
 
 ### Typography
-- **Headings & Display:** **Fraunces** (optical-size serif with handcrafted organic weight)
-- **Body & Controls:** **Mukta** (clean, open humanist sans-serif with high readability)
-- **Technical & Coordinates:** **JetBrains Mono** (monospace font for hex codes, resolutions, and contrast ratios)
+- **Headings & Display:** **Yatra One** & **Fraunces** (Devanagari-inspired handcrafted display serif with authentic chisel strokes)
+- **Body & Controls:** **Mukta** (Clean, humanist open sans-serif; enforced $\ge 16$px on mobile text inputs to prevent auto-zoom)
+- **Technical & Coordinates:** **JetBrains Mono** (Monospace for payload strings, resolutions, and contrast calculations)
 
-### Vector Art Library (`src/art/`)
-Zero stock photos, raster images, or AI-generated graphics. Every motif is hand-drawn pure SVG code:
-- `FishPair`: Twin swimming carp representing fertility and auspicious journeys
-- `Peacock`: Sacred peacock with fan-tail plume details
-- `Lotus`: Sacred multi-petaled padma blossom
-- `Sun`: Radiant Mithila surya face with solar rays
-- `LeafVine`: Flowering creepers and organic border tendrils
-- `BorderFrame`: Authentic double-bordered geometric cartouche
-- `PatternFill`: Procedural Kachni (fine parallel hatching), Godna (stipple dots), and Bharni fills
-- `Corner`: Corner floral brackets for cards and panels
-
----
-
-## ⚡ Key Architectural Features
-
-### 1. 2D Designer QR Generator & Styler
-- **5 QR Types:** URL, Plain Text, Email (`mailto:` with encoded query), Phone (`tel:`), and Wi-Fi (WPA/WEP/None with MECARD escaping).
-- **Module Shapes:**
-  - `square`: Standard crisp geometry
-  - `rounded`: Modern smooth-corner squircles
-  - `dot`: High-area circular dots with protected timing tracks
-  - `diamond`: 45-degree folk rhombus
-  - `connected`: Organic fluid clusters that dynamically detect adjacent modules
-- **Finder Patterns (Corner Eyes):** Independent styling for `square`, `rounded`, and `circle-ring` concentric eyes.
-- **Color Flows & Gradients:** Linear and Radial gradient flows with quick Madhubani presets (*Sunrise*, *Pond*, *Garden*).
-- **Madhubani Folk Art Hatching:**
-  - `katchni`: Delicate 45-degree parallel ink hatching lines inside modules
-  - `godna`: Sacred tattoo-inspired stippling center dots
-  - `bharni`: Double-line inset module borders
-- **Procedural Wasli Paper Texture:** Deterministic organic fiber wash simulating traditional handmade sun-dried paper.
-- **Image-Blend Underlay:** Client-side background artwork blend with opacity slider and protected quiet zones around finders.
-- **Pixel-Matched Exports:**
-  - **PNG:** Rendered from the preview canvas (with optional decorative Madhubani frame).
-  - **SVG:** Standalone vector XML matching shapes, finders, gradients, and hatching 1:1.
-  - **Clipboard:** Native image copy via `navigator.clipboard.write([ClipboardItem])`.
-
-### 2. Optical Scannability Gate & Automated `jsQR` Engine
-- **Automated Real-Time Camera Simulation:** Every render executes `jsQR` on canvas pixel data in the background.
-- **Status Badges:** Displays *"Scans OK in camera test"* or *"Could not be decoded in camera test"*.
-- **Download Guard:** Export buttons are disabled when optical decode fails unless the user explicitly checks *"Download anyway"*.
-- **"Make It Safer" Auto-Remedy:** One-click button that resets contrast, increases error correction level to 'H', sets safe rounded shapes, and restores standard margins.
-
-### 3. 3D WebGL QR Studio (`src/three/`)
-- **GPU-Instanced Rendering:** Single `THREE.InstancedMesh` for 60+ FPS performance even on low-powered mobile devices.
-- **16 Curated Madhubani Themes:**
-  - *Courtyards:* Peacock Garden, Lotus Pond, Sun Temple, Mithila Fish Pond
-  - *Folk Tales:* Mithila Courtyard, Monsoon Canopy, Terracotta Village, Twilight Bazaar
-  - *Motifs:* Sacred Peacock, Auspicious Twin Fish, Royal Elephant, Blooming Lotus
-  - *Artisanal:* Classic Ink Block, Wasli Parchment, Mineral Pigments, Deep Night Rangoli
-- **3D Controls:** Extrusion depth slider (0.3x to 2.2x), primitive styles (cube, rounded, cylinder), palette accent picker, and orbit auto-rotate controls.
-- **Dual Export:** Export an artistic 3D snapshot or a verified flat scan-safe PNG.
-
-### 4. Client-Side State, Cryptography & URL Sharing
-- **Zero Backend Required:** Operates 100% locally. Passwords use PBKDF2 Web Crypto hashing with unique 16-byte random salts.
-- **"Try Demo Account":** One-click demo login as *"Demo Designer"* with local storage isolation.
-- **Cross-Device URL Sharing (`src/lib/shareLink.ts`):** Encodes full templates (including 2D designer styles and 3D settings) into compressed, sanitized base64url strings (`#/app?share=...`). Backward compatible with v1 payloads.
-
-### 5. Automated Authenticity & Hygiene Audit (`scripts/audit-site.mjs`)
-- Custom static analysis script scanning all source files.
-- Enforces zero placeholder copy (`Lorem ipsum`, `foo`, `bar`), zero stub links (`href="#"`), zero fake social proof (`Fortune 500`, fake user reviews), and zero stray `console.log` statements in production.
+### Handcrafted SVG Art Library (`src/art/`)
+Zero stock photos, downloaded raster images, or AI-generated artwork. Every graphic is hand-coded vector SVG:
+- `DoubleLineBorder`: Authentic Madhubani double-line frame with selectable inner band hatching (`kachni`, `bharni`, `fish-scale`) and four corner lotus buds.
+- `JharokhaFrame`: Traditional temple gateway arch featuring a sacred Kalash finial, stepped plinth, and clean quiet zone.
+- `FolkTag`: Auspicious pill badge with rice/haldi/sindoor pigment styling.
+- `Sun`: Radiating Mithila Surya motif with double concentric rings and auspicious ray dots.
+- `Moon`: Chandra crescent with delicate parallel katchni hatching.
+- `Peacock`: Sacred peacock with arched fan-tail plumes and eyespot details.
+- `FishPair`: Auspicious twin swimming carp symbolizing fertility and journeys.
+- `Kadamba`: Sacred flowering kadamba tree with layered blossom rosettes.
+- `ArtCreditNote`: Respectful tribute honoring the centuries-old living traditions of Mithila artists.
 
 ---
 
-## 📁 Repository Structure
+## ⚡ 7-Phase Architecture & Redesign Highlights
 
-```
-QRaft/
-├── docs/
-│   ├── EXPLAIN.md          # Architectural deep-dive & technical decisions
-│   ├── TESTING.md          # Comprehensive testing strategy & checklist
-│   ├── MANUAL_TODO.md      # Student submission manual checklist
-│   └── UPGRADE_AUDIT.md    # Baseline upgrade audit report
-├── scripts/
-│   └── audit-site.mjs      # Automated hygiene and authenticity checker
-├── src/
-│   ├── art/                # Pure code-drawn Madhubani vector SVG library
-│   │   ├── FishPair.tsx    # Auspicious twin fish motif
-│   │   ├── Peacock.tsx     # Sacred peacock motif
-│   │   ├── Lotus.tsx       # Sacred lotus motif
-│   │   ├── Sun.tsx         # Radiant solar motif
-│   │   ├── LeafVine.tsx    # Organic foliage tendrils
-│   │   ├── BorderFrame.tsx # Madhubani geometric decorative frame
-│   │   └── Corner.tsx      # Corner floral cartouche
-│   ├── components/
-│   │   ├── forms/          # Type selectors, forms, and customization panel
-│   │   ├── layout/         # Navbar, responsive TabBar with motion indicator
-│   │   ├── qr/             # QrPreview canvas, RangoliQrAnimator
-│   │   ├── tabs/           # GeneratorTab, ThreeTab, Templates, Community, Recent, Profile
-│   │   └── ui/             # MadhubaniBackground, Logo, EmptyStateScene
-│   ├── config/
-│   │   └── site.ts         # Single source of truth for site/author metadata
-│   ├── lib/
-│   │   ├── contrastCheck.ts# WCAG contrast calculation & AA validation
-│   │   ├── download.ts     # Canvas PNG and vector SVG export pipelines
-│   │   ├── payload.ts      # QR payload generators (URL, Wi-Fi, email, etc.)
-│   │   ├── presets.ts      # Madhubani style presets
-│   │   ├── qrRenderer.ts   # Designer QR canvas & vector SVG rendering engine
-│   │   ├── reliability.ts  # Scan reliability analyzer
-│   │   ├── scanVerify.ts   # Client-side jsQR verification
-│   │   ├── shareLink.ts    # v1/v2 base64url URL hash share engine
-│   │   └── validation.ts   # Input validation rules
-│   ├── pages/              # Welcome, Workspace, Login, Terms, NotFound
-│   ├── services/           # RecentStore, TemplateStore, CommunityStore, AuthService, seed
-│   ├── three/              # Three.js WebGL instanced mesh scene and themes
-│   └── test/               # Vitest test suite (55 tests)
-├── package.json
-└── tailwind.config.js
-```
+### Phase 1: Folk Palette, Typography & Procedural Paper
+- Definitive natural pigment color tokens in Tailwind and CSS custom properties.
+- Mathematical contrast engine (`src/lib/contrastCheck.ts`) enforcing WCAG AA/AAA. Haldi is strictly forbidden as text on light surfaces.
+- Procedural paper texture generator (`src/lib/paperTexture.ts`) generating high-performance cached $512\times 512$ khadi tiles and $128\times 128$ grain washes.
+
+### Phase 2: Folk Frames, Calm Workspace Rule & Calm Mode
+- Folk frames (`DoubleLineBorder`, `JharokhaFrame`) wrapping previews and cards.
+- **Calm Workspace Rule:** While the landing gate features expressive folk art, the creative workspace is quiet, focused, and distraction-free.
+- **Calm Mode Toggle:** Persisted via `localStorage` with automatic `prefers-reduced-motion` detection, providing a tranquil workspace for focused designing.
+
+### Phase 3: Shared Palette Migration Engine
+- **Backward-Compatible Migration (`src/lib/paletteMigration.ts`):** Automatically maps legacy hex codes into folk tokens.
+- **10 Curated Presets (`src/lib/presets.ts`):** Indigo Ink, Sindoor Red, Haldi Glow, Sacred Grove, Classic Ink, Dark Canvas, Professional, Minimal, Neon Haldi, and Godna Tattoo.
+- **Auto-Migrated Stores:** `TemplateStore` and `RecentStore` upgraded to `v2` with automatic legacy `v1` migration on load.
+- **Cross-Device Share Links (`src/lib/shareLink.ts`):** Sanitized base64url payload sharing supporting v1, v2, and v3 payloads with automatic color migration.
+
+### Phase 4: Interactive Motion Background (`src/components/MotionBackground.tsx`)
+- Full-screen hardware-accelerated HTML5 canvas background.
+- **3 Parallax Depth Layers:**
+  - *Far Layer (0.02 factor):* Surya & Chandra celestial motifs with gentle drift.
+  - *Mid Layer (0.05 factor):* Flowing folk fauna (peacock feather arcs, swimming fish pairs).
+  - *Near Layer (0.10 factor):* Ambient ink specks and floating rice petal particles.
+- **Smooth Interaction:** Desktop `pointermove` and mobile gyroscope tilt (`deviceorientation` with iOS permission toggle) with smooth lerp interpolation.
+- **Battery & Performance Safeguards:** Idle throttle to 10 FPS after 2s of inactivity; complete RAF pause when `document.hidden`; single static frame when Calm Mode is active.
+
+### Phase 5: Scenic 3D World & Voxel Diorama (`src/three/`)
+- Renamed and reimagined as **Scenic 3D World**.
+- **Procedural Voxel Generation (`src/three/voxelGenerator.ts`):** Deterministic voxel columns generated from `QRCode.create()` modules with cluster flood-fill extracting terrain islands, stepped temples, and landmark shrines.
+- **Voxel Budget Cap:** Strict budget capping (40,000 voxels desktop / 15,000 voxels mobile) ensuring steady 60 FPS WebGL performance.
+- **3 Hero Themes + Classic Fallback:**
+  1. *Anime Alpine & Shinto Pass:* Misty pine terraces, snow-capped peaks, and vermilion torii gateway finders.
+  2. *Mithila Sacred Grove:* Terracotta stepped plinths, kadamba tree canopies, and golden kalash finials.
+  3. *Floating Voxel Isle:* Cascading floating basalt isles and luminous glowing crystal pillars.
+  4. *Classic Blocks:* High-contrast architectural cubes for universal readability.
+- **2D Scan $\leftrightarrow$ 3D Scenic Continuous Morph:**
+  - Slider and quick toggle morphing parameter $t \in [0, 1]$.
+  - At $t=0$ (*Scan Mode*): Top-down orthographic camera, unlit flat shading, 100% planar module alignment.
+  - At $t=1$ (*Scenic Mode*): 45-degree isometric orbit, atmospheric fog, and directional toon lighting.
+- **Real-Time Optical `jsQR` Verification:** Canvas verification with decoded payload banner in Scan Mode.
+- **Dual Export Options:** Export Scan-Safe PNG (flat 1024px) or Export Scenic Diorama PNG (perspective 3D snapshot).
+
+### Phase 6: Responsive Layout & Accessibility Audit
+- Mobile (360px), tablet (768px), and desktop (1440px) responsive layouts.
+- Enforced minimum 16px (`text-base`) input font size to eliminate mobile iOS/Android auto-zoom.
+- Minimum $44\times 44$ px touch targets across buttons, tabs, and form fields.
+- Zero horizontal overflow across all viewports.
+- Screen reader ARIA alerts (`role="alert" aria-live="polite"`), explicit label pairings, and accessible names.
+
+### Phase 7: Comprehensive Testing & Verification
+- **11 Vitest test suites with 93 passing unit tests.**
+- 100% automated hygiene audit passing via `npm run audit`.
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Verification & Test Instructions
 
-### Prerequisites
-- **Node.js** >= 18.0.0
-- **npm** >= 9.0.0
-
-### Installation & Local Development
-
+### Running Tests
+Execute the comprehensive Vitest test suite:
 ```bash
-# Clone the repository
-git clone https://github.com/[YOUR-USERNAME]/qraft.git
-cd qraft
-
-# Install dependencies
-npm install
-
-# Start local development server
-npm run dev
-```
-
-Open your browser at `http://localhost:5173`.
-
-### Quality Assurance & Verification Commands
-
-```bash
-# 1. Run unit test suite (55 tests passing across 6 suites)
 npm test
+```
+*Current test suite: 11 test files, 93 tests passed (100% pass rate).*
 
-# 2. Run automated authenticity and hygiene audit
-npm run audit
-
-# 3. Type check and build production bundle
+### Building the Project
+Compile TypeScript strict mode and bundle production assets:
+```bash
 npm run build
+```
 
-# 4. Preview production build locally
+### Running the Authenticity & Hygiene Audit
+Verify zero stubs, placeholders, fake marketing claims, or stray logs:
+```bash
+npm run audit
+```
+
+### Local Preview
+Launch the optimized production build:
+```bash
 npm run preview
 ```
 
 ---
 
-## 🏆 Evaluation Criteria Checklist (GDG SRM IST)
+## 📂 Project Structure
 
-| Category | Requirement | Implementation in QRaft |
-|---|---|---|
-| **Design & UI** | Cohesive visual theme | Authentic Madhubani folk art palette, Fraunces serif typography, hand-drawn vector library |
-| **QR Types** | URL, Text, Email, Phone, Wi-Fi | All 5 types with live validation and field hints |
-| **Customization** | Colors, sizes, margins, error correction | 5 module shapes, 3 finder styles, gradients, hatching, paper texture, image blend |
-| **Scannability** | High scan reliability across devices | WCAG AA/AAA contrast math + automated background `jsQR` scan verification gate |
-| **Exports** | High-resolution PNG and vector SVG | Canvas PNG (with decorative frame) and exact-match scalable vector SVG |
-| **3D Mode** | Interactive WebGL QR preview | 16 Madhubani WebGL themes, GPU instancing, top-view snap, dual export |
-| **State & Storage**| Client-side persistence | Templates library, recent items, PBKDF2 local auth, URL-hash share links |
-| **Performance**| Fast load times and responsiveness | Lazy-loaded 3D tab, debounced rendering, touch swipe tab bar, 60+ FPS |
-| **Authenticity**| Clean, genuine content | Zero stock/AI photos, zero fake reviews, single source of truth in `src/config/site.ts` |
+```
+QRaft/
+├── docs/
+│   ├── EXPLAIN.md              # In-depth architectural & mathematical reasoning
+│   ├── TESTING.md              # Test suite documentation & coverage report
+│   ├── MANUAL_TODO.md          # Student GDG submission checklist
+│   └── screenshots/            # Responsive screenshots across all phases
+├── src/
+│   ├── art/                    # Handcrafted SVG art library (DoubleLineBorder, JharokhaFrame, etc.)
+│   ├── components/
+│   │   ├── forms/              # Type forms & type selector (URL, text, email, phone, wifi)
+│   │   ├── layout/             # Navbar, TabBar, GateGuard
+│   │   ├── qr/                 # QrPreview, RangoliQrAnimator, CustomizationPanel
+│   │   ├── tabs/               # GeneratorTab, ThreeTab (Scenic 3D World), TemplatesTab, etc.
+│   │   ├── ui/                 # Logo, FolkTag, EmptyStateScene
+│   │   └── MotionBackground.tsx # Interactive HTML5 parallax canvas background
+│   ├── hooks/                  # useCalmMode, useQrStudio, useAuth
+│   ├── lib/                    # Contrast check, palette migration, paper texture, share link, QR renderer
+│   ├── services/               # Templates (v2), Recent (v2), Seed, Auth
+│   ├── test/                   # 11 unit test suites (93 tests)
+│   └── three/                  # Scenic 3D World (voxel generator, ScenicQrScene, themes, matrix)
+└── scripts/
+    └── audit-site.mjs          # Automated hygiene audit script
+```
 
 ---
 
-## 📄 License
+## 📜 Cultural Note & Attribution
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-All Madhubani vector motifs in `src/art/` are original vector interpretations created for QRaft.
+QRaft respectfully honors the rich folk art traditions of the Mithila region of Bihar, India. The geometric motifs, natural earth pigment palette, and decorative framing techniques are inspired by generations of traditional Mithila artists. QRaft uses strictly original, code-authored vector artwork created specifically for this project.
