@@ -117,7 +117,7 @@ export class AuthService {
       salt: 'demo_salt',
       createdAt: Date.now() - 86400000 * 30,
       isDemo: true,
-      following: ['user-aanya', 'user-devika'],
+      following: [],
     };
 
     const users = this.getUsers();
