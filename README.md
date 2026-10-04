@@ -1,14 +1,25 @@
 # QRaft — Madhubani Folk Art 2D & Scenic 3D World QR Designer
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-success?style=for-the-badge&logo=vercel&logoColor=white)](https://q-raft-kohl.vercel.app/)
 [![GDG Submission](https://img.shields.io/badge/GDG%20on%20Campus-SRM%20IST%20Recruitment-1A3644?style=for-the-badge&logo=google&logoColor=white)](https://gdg.community.dev/srm-ist)
 [![React 18](https://img.shields.io/badge/React-18.3-D99B26?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript Strict](https://img.shields.io/badge/TypeScript-Strict%20Mode-A62B2B?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Three.js](https://img.shields.io/badge/Three.js-Scenic%203D%20World-2D5A3E?style=for-the-badge&logo=three.js&logoColor=white)](https://threejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-1A3644?style=for-the-badge)](LICENSE)
 
+<p align="center">
+  <a href="https://q-raft-kohl.vercel.app/" target="_blank">
+    <img src="docs/screenshots/qraft-showcase.png" alt="QRaft - Mithila Madhubani QR Designer & Scenic 3D World" width="100%" />
+  </a>
+  <br />
+  <strong>🌐 Live Production URL:</strong> <a href="https://q-raft-kohl.vercel.app/">https://q-raft-kohl.vercel.app/</a>
+</p>
+
 > **QRaft** is an authentic, privacy-first QR code generator and **Scenic 3D World** diorama designer inspired by the centuries-old living traditions of **Mithila (Madhubani) folk art** from Bihar, India. Designed and engineered client-side with zero tracking and zero backend dependencies, QRaft bridges ancient cultural craftsmanship with modern web graphics: natural folk pigment tokens, procedural handmade khadi paper textures, an interactive HTML5 motion canvas, real-time WCAG contrast checking, automated optical `jsQR` scannability gating, and an instanced procedural 3D voxel diorama that seamlessly morphs between camera-ready 2D Scan Mode and a 45-degree isometric 3D Scenic Orbit.
 
 **Technical Recruitment Submission:** GDG on Campus, SRM Institute of Science and Technology (Technical Domain, Frontend: *"QR Code Generator & Designer"*).
+
+**Live Demo:** [https://q-raft-kohl.vercel.app/](https://q-raft-kohl.vercel.app/)
 
 ---
 
@@ -126,6 +137,10 @@ Launch the optimized production build:
 ```bash
 npm run preview
 ```
+
+### Live Deployment
+QRaft is deployed on Vercel with automatic continuous integration:
+- 🚀 **Production URL:** [https://q-raft-kohl.vercel.app/](https://q-raft-kohl.vercel.app/)
 
 ---
 
